@@ -25,6 +25,17 @@ test("the hall links each card to a distinct game and shows resumable progress p
   expect(screen.queryByRole("link", { name: /继续游玩/ })).toBeNull();
 });
 
+test.each([
+  ["quilt", /开始拼风筝/],
+  ["toy-repair", /接单并进入维修室/],
+  ["pond", /开始挑战/],
+] as const)("a direct link to %s loads the playable first action", async (id, action) => {
+  window.history.replaceState(null, "", "#/" + id);
+  render(<App />);
+  expect(await screen.findByRole("button", { name: action }, { timeout: 5000 })).toBeDefined();
+  expect(screen.getByRole("link", { name: /游戏大厅/ }).getAttribute("href")).toBe("#/");
+});
+
 test("the selected resource exposes its link to keyboard and pointer users", async () => {
   const user = userEvent.setup();
   window.history.replaceState(null, "", "#/resources");

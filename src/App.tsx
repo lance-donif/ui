@@ -1,10 +1,13 @@
-import { Component, lazy, Suspense, useEffect, useRef, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
+import { Component, lazy, Suspense, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { catalog, Hall, HallHeader } from "./hub/Hall";
 import { Resources } from "./hub/Resources";
 import { storageUnavailable, subscribeToSaves } from "./shared/storage";
 
-const gameModules = import.meta.glob<{ default: ComponentType }>("./games/*/index.tsx");
-const games = Object.fromEntries(Object.entries(gameModules).map(([path, load]) => [path.split("/")[2], lazy(load)]));
+const games = {
+  quilt: lazy(() => import("./games/quilt")),
+  "toy-repair": lazy(() => import("./games/toy-repair")),
+  pond: lazy(() => import("./games/pond")),
+};
 
 function watchRoute(notify: () => void) {
   window.addEventListener("hashchange", notify);

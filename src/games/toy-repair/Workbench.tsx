@@ -1,8 +1,9 @@
+import BearSeam from "./BearSeam";
+import { hitsHole } from "./bearSeamGeometry";
 import { useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import {
   carSocket,
   currentAction,
-  holes,
   screws,
   toys,
   toolNames,
@@ -45,23 +46,6 @@ function layer(name: string, at: Point, width: number, css = "", deg?: number) {
       }}
     />
   );
-}
-function stitchLines(n: number) {
-  return holes.slice(0, n).map((a, i) => {
-    const b = holes[i + 1];
-    const length = distance(a, b);
-    return (
-      <i
-        key={i}
-        className="tr-stitch"
-        style={{
-          ...pos(a),
-          width: length + "%",
-          transform: `rotate(${angle(b, a)}deg)`,
-        }}
-      />
-    );
-  });
 }
 function Notes({ count }: { count: number }) {
   return (
@@ -113,61 +97,6 @@ function Illustration({
   testing: Test | null;
 }) {
   const stem = action?.id;
-  if (job.kind === "bear") {
-    const count =
-      job.phase === "inspect" || job.step < 1
-        ? 0
-        : job.step === 1
-          ? job.repeat
-          : 5;
-    const tug =
-      at && (stem === "inspect-arm" || stem === "trial")
-        ? Math.min(1, Math.max(0, (at[0] - 57) / 20))
-        : 0;
-    return (
-      <>
-        <img
-          alt=""
-          src={asset("bear-seam")}
-          className="tr-teddy-back"
-          style={{ transform: "scaleX(" + (1 + tug * 0.045) + ")" }}
-        />
-        {count < 5 && (
-          <i
-            className="tr-seam-opening"
-            style={{
-              height: (5 - count) * 6.7 + "%",
-              top: 34 + count * 6.7 + "%",
-            }}
-          />
-        )}
-        {(job.phase === "inspect" || stem === "tuck") &&
-          layer("cotton", stem === "tuck" && at ? at : [66 + tug * 3, 46], 17)}
-        {stitchLines(count)}
-        {stem === "stitch" &&
-          holes.map((p, i) => <i key={i} className="tr-hole" style={pos(p)} />)}
-        {(stem === "tight" || stem === "cut") && (
-          <i
-            className="tr-loose-thread"
-            style={{
-              ...pos(holes[5]),
-              width:
-                distance(holes[5], at && stem === "tight" ? at : [77, 58]) +
-                "%",
-              transform:
-                "rotate(" +
-                angle(at && stem === "tight" ? at : [77, 58], holes[5]) +
-                "deg)",
-            }}
-          />
-        )}
-        {(job.phase === "fail" ||
-          (job.weak !== null && job.phase === "trial")) && (
-          <span className="tr-seam-gap" style={pos([54, 64])} />
-        )}
-      </>
-    );
-  }
   if (job.kind === "car") {
     if (["inspect", "trial", "pass", "fail"].includes(job.phase))
       return (
@@ -372,7 +301,13 @@ export default function Workbench({
       return;
     const p = relative(e);
     const d = distance(p, parkedAt ?? action.from);
-    if (action.turn ? d < 3 || d > 26 : d > 12) {
+    const invalidStart =
+      action.id === "stitch"
+        ? !hitsHole(p, job.repeat, job.repeat, board.current!.clientWidth)
+        : action.turn
+          ? d < 3 || d > 26
+          : d > 12;
+    if (invalidStart) {
       onMessage(
         action.turn ? "从金色把手起按，再绕中心转。" : "请从金色圆点起按。",
       );
@@ -423,7 +358,16 @@ export default function Workbench({
       }
     } else {
       const d = distance(relative(e), action.to);
-      if (d <= (action.id === "stitch" ? 6.3 : 9.5)) onComplete(d <= 5);
+      const seated =
+        action.id === "stitch"
+          ? hitsHole(
+              relative(e),
+              job.repeat + 1,
+              job.repeat,
+              board.current!.clientWidth,
+            )
+          : d <= (action.id === "tuck" ? 6.8 : 9.5);
+      if (seated) onComplete(d <= 5);
       else if (action.id === "gear") {
         const p = relative(e);
         setParkedAt([
@@ -476,7 +420,10 @@ export default function Workbench({
         </p>
       )}
       <div
-        className={"tr-board " + (!action ? "tr-still" : "")}
+        className={
+          "tr-board " +
+          (!action ? "tr-still" : action.id === "stitch" ? "tr-sewing" : "")
+        }
         ref={board}
         onPointerDown={down}
         onPointerMove={update}
@@ -486,13 +433,22 @@ export default function Workbench({
         role="group"
         aria-label={action?.title ?? "玩具特写"}
       >
-        <Illustration
-          job={job}
-          action={action}
-          testing={test}
-          at={at ?? parkedAt}
-          angleTurn={degrees * dir}
-        />
+        {job.kind === "bear" ? (
+          <BearSeam
+            job={job}
+            action={action}
+            contact={at ?? (primed ? (action?.from ?? null) : null)}
+            needleReady={tool === "needle"}
+          />
+        ) : (
+          <Illustration
+            job={job}
+            action={action}
+            testing={test}
+            at={at ?? parkedAt}
+            angleTurn={degrees * dir}
+          />
+        )}
         {action && (
           <>
             {action.turn ? (
@@ -510,7 +466,14 @@ export default function Workbench({
             />
             {(at ?? parkedAt) &&
               tool !== "key" &&
-              layer(tool, (at ?? parkedAt)!, 15, "tr-held-tool")}
+              !(job.kind === "bear" && tool === "needle") &&
+              layer(
+                tool,
+                (at ?? parkedAt)!,
+                15,
+                "tr-held-tool" +
+                  (job.kind === "bear" ? " tr-bear-" + tool : ""),
+              )}
             {action.turn && (
               <span className="tr-turn-value">
                 {dir === 1 ? "顺时针" : "逆时针"}　{Math.round(degrees)}° /{" "}

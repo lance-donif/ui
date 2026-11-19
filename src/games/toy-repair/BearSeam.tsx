@@ -91,6 +91,23 @@ function paintFabric(
     }
   }
 }
+function drawCord(ctx: CanvasRenderingContext2D, path: Path2D, weight: number) {
+  ctx.save();
+  ctx.lineCap = "round";
+  function stroke(color: string, width: number, dy: number) {
+    ctx.save();
+    ctx.translate(0, dy);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width * weight;
+    ctx.stroke(path);
+    ctx.restore();
+  }
+  stroke("#795234", 7, 1.1);
+  stroke("#f3d6a1", 5.1, 0);
+  ctx.setLineDash([2.7, 6]);
+  stroke("#fff2d3", 1.35, -0.7);
+  ctx.restore();
+}
 function thread(
   ctx: CanvasRenderingContext2D,
   start: Point,
@@ -100,22 +117,36 @@ function thread(
 ) {
   const [ax, ay] = start.map(toPixel),
     [bx, by] = end.map(toPixel);
-  const cx = (ax + bx) / 2 + bow,
-    cy = (ay + by) / 2 + Math.abs(bow) * 0.6;
-  ctx.lineCap = "round";
-  function stroke(color: string, width: number, dy: number) {
-    ctx.beginPath();
-    ctx.moveTo(ax, ay + dy);
-    ctx.quadraticCurveTo(cx, cy + dy, bx, by + dy);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width * weight;
-    ctx.stroke();
-  }
-  stroke("#7a5438", 7, 1.1);
-  stroke("#f2d39b", 5.1, 0);
-  ctx.setLineDash([2.7, 6]);
-  stroke("#fff2d3", 1.35, -0.7);
-  ctx.setLineDash([]);
+  const path = new Path2D();
+  path.moveTo(ax, ay);
+  path.quadraticCurveTo(
+    (ax + bx) / 2 + bow,
+    (ay + by) / 2 + Math.abs(bow) * 0.6,
+    bx,
+    by,
+  );
+  drawCord(ctx, path, weight);
+}
+function workingThread(
+  ctx: CanvasRenderingContext2D,
+  start: Point,
+  eye: Point,
+  needleWidth: number,
+) {
+  const [ax, ay] = start.map(toPixel),
+    [bx, by] = eye.map(toPixel);
+  const width = toPixel(needleWidth);
+  const path = new Path2D();
+  path.moveTo(ax, ay);
+  path.bezierCurveTo(
+    ax + width * 0.52,
+    ay + width * 0.67,
+    bx + width * 1.15,
+    by + width * 1.32,
+    bx,
+    by,
+  );
+  drawCord(ctx, path, 0.93);
 }
 function sewnThread(
   ctx: CanvasRenderingContext2D,
@@ -144,7 +175,7 @@ function sewnThread(
       lift = Math.min(1, Math.min(t, 1 - t) / 0.31);
     const a = sample(i / steps),
       b = sample((i + 1) / steps);
-    const width = 1.1 + 3.6 * lift;
+    const width = 1.1 + 4.3 * lift;
     ctx.globalAlpha = lift * 0.85 + 0.08;
     function strand(color: string, w: number, offset: number) {
       ctx.beginPath();
@@ -155,7 +186,7 @@ function sewnThread(
       ctx.stroke();
     }
     strand("rgba(109,72,48,.6)", width + 1.2, 0.9);
-    strand("#f2d39b", width, 0);
+    strand("#f6dba8", width, 0);
     if (i % 5 < 2) strand("#fff2d3", width * 0.21, -0.64);
   }
   ctx.restore();
@@ -249,22 +280,15 @@ export default function BearSeam({ job, action, contact, needleReady }: Props) {
     const ctx = over.current.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, fabricSize, fabricSize);
-    if (
-      sewing &&
-      tip &&
-      contact &&
-      needle.current &&
-      over.current.clientWidth
-    ) {
+    if (sewing && tip && needle.current && over.current.clientWidth) {
       const needleWidth =
         (needle.current.getBoundingClientRect().width * 100) /
         over.current.clientWidth;
-      thread(
+      workingThread(
         ctx,
         needleHole(sewn, sewn),
         [tip[0] + (needleWidth * 185.5) / 225, tip[1] - needleWidth],
-        9,
-        0.62,
+        needleWidth,
       );
     } else if (stage === "cut" || stage === "tight") {
       const end = stage === "tight" && contact ? contact : tailEnd;

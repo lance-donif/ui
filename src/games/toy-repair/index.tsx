@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { playCue, setDiagnosticQuiet } from "../../shared/audio";
 import { readGameSave, writeGameSave } from "../../shared/storage";
 import Workbench, { asset } from "./Workbench";
 import {
@@ -17,6 +18,7 @@ import {
   retryRepair,
   toolNames,
   toys,
+  type Action,
   type Fault,
   type Job,
   type Kind,
@@ -84,26 +86,48 @@ function successText(k: Kind) {
     wind: "松开风轮，四片叶片在风里持续旋转。",
   }[k];
 }
-function playFeedback(ctx: AudioContext, notes: number[]) {
-  void ctx.resume().catch(() => {});
-  notes.forEach((frequency, i) => {
-    const osc = ctx.createOscillator(),
-      gain = ctx.createGain();
-    const t = ctx.currentTime + i * 0.17;
-    osc.type = "sine";
-    osc.frequency.value = frequency;
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.065, t + 0.012);
-    gain.gain.exponentialRampToValueAtTime(0.0003, t + 0.3);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.32);
-    osc.onended = () => {
-      osc.disconnect();
-      gain.disconnect();
-    };
-  });
+type Cue = Parameters<typeof playCue>[0];
+const materialCues: Partial<Record<string, Cue>> = {
+  "inspect-arm": "bearPull",
+  "inspect-car": "wind",
+  tuck: "grab",
+  stitch: "stitch",
+  tight: "slide",
+  cut: "snip",
+  lift: "grab",
+  close: "pin",
+  gear: "gear",
+  mesh: "gear",
+  remove: "grab",
+  "cap-gap": "pin",
+  "wind-check": "tool",
+  "lift-sail": "grab",
+  "fit-sail": "pin",
+  pick: "grab",
+  align: "gear",
+  lock: "pin",
+  calibrate: "slide",
+};
+function repairCue(job: Job, action: Action, next: Job): Cue | undefined {
+  if (job.phase === "tests") {
+    if (job.kind === "music") {
+      return action.id === "direct" && job.fault === 0 ? "musicTwo" : undefined;
+    }
+    if (action.id === "direct") return job.fault === 0 ? "grab" : "tool";
+    return undefined;
+  }
+  if (job.phase === "trial") {
+    if (job.kind === "music") {
+      if (next.phase === "pass") return "musicThree";
+      return job.fault === 1 ? "musicTwo" : undefined;
+    }
+    if (job.kind === "bear") return "bearPull";
+    if (job.kind === "car") return "wind";
+    return next.phase === "pass" ? "tool" : undefined;
+  }
+  if (action.tool === "driver") return "screw";
+  if (action.id === "install") return action.part === "gear" ? "gear" : "pin";
+  return materialCues[action.id];
 }
 type Tab = "counter" | "bench" | "book";
 export default function ToyRepair() {
@@ -121,7 +145,6 @@ export default function ToyRepair() {
   const [guess, setGuess] = useState<Fault | null>(null);
   const [proof, setProof] = useState<Test | null>(null);
   const [record, setRecord] = useState<Ticket | null>(null);
-  const audio = useRef<AudioContext | null>(null);
   const written = useRef<StudioSave | null>(null);
   const job = save.active[kind];
   const toy = toys[kind];
@@ -135,20 +158,21 @@ export default function ToyRepair() {
       written.current = save;
     }
   }, [save]);
-  useEffect(
-    () => () => {
-      if (audio.current) void audio.current.close().catch(() => {});
-    },
-    [],
-  );
-  function sound(notes: number[]) {
-    if (!save.sound) return;
-    try {
-      audio.current ??= new AudioContext();
-      playFeedback(audio.current, notes);
-    } catch {
-      return;
-    }
+  const listening =
+    tab === "bench" &&
+    job?.kind === "music" &&
+    (job.phase === "tests" ||
+      job.phase === "trial" ||
+      job.phase === "pass" ||
+      job.phase === "fail");
+  useEffect(() => {
+    if (!listening) return;
+    setDiagnosticQuiet(true);
+    return () => setDiagnosticQuiet(false);
+  }, [listening]);
+  function pickTool(value: Tool) {
+    if (!listening && value !== tool) playCue("tool");
+    setTool(value);
   }
   function changeJob(next: Job) {
     setSave((s) => ({
@@ -184,21 +208,20 @@ export default function ToyRepair() {
   function takeAction(accurate: boolean) {
     if (!job) return;
     const before = currentAction(job, test);
+    if (!before) return;
     const next = completeAction(job, accurate, test);
+    const cue = repairCue(job, before, next);
+    if (cue) playCue(cue);
     changeJob(next);
     if (job.phase === "tests" && test) {
       setMessage(observation(job, test));
       setProof(test);
-      if (kind === "music" && test === "direct" && job.fault === 0)
-        sound([523, 659]);
       return;
     }
     if (next.phase === "pass") {
       setMessage(successText(kind));
-      sound(kind === "music" ? [523, 659, 784] : [587, 784]);
     } else if (next.phase === "fail") {
       setMessage(repairFailure(next));
-      if (kind === "music" && next.fault === 1) sound([523, 659]);
     } else {
       const completion =
         before?.id === "inspect-arm"
@@ -215,7 +238,6 @@ export default function ToyRepair() {
                   ? "修补完成。用顾客描述的动作试一试。"
                   : "这一步已保存。";
       setMessage(completion);
-      sound([next.repeat > 0 ? 587 : 659]);
     }
   }
   function submitDiagnosis() {
@@ -224,7 +246,6 @@ export default function ToyRepair() {
     changeJob(r.job);
     setMessage(r.message);
     setGuess(null);
-    if (r.job.phase === "choose") sound([523, 659]);
   }
   function handOver() {
     if (!job || job.phase !== "pass") return;
@@ -233,7 +254,7 @@ export default function ToyRepair() {
     setSave((s) => deliver(s, kind, now));
     setTab("book");
     setMessage("玩具已经交还，案例已收入手册。");
-    sound([523, 659, 784]);
+    if (kind !== "music") playCue("badge");
   }
   const action = job ? currentAction(job, test) : null;
   function renderCounter() {
@@ -473,7 +494,7 @@ export default function ToyRepair() {
             job={job}
             tool={tool}
             test={test}
-            onTool={setTool}
+            onTool={pickTool}
             assist={assist}
             onAssist={setAssist}
             onComplete={takeAction}
@@ -502,6 +523,7 @@ export default function ToyRepair() {
                     onClick={() => {
                       changeJob({ ...job, repeat: job.repeat - 1 });
                       setMessage("已拆下最后一针。");
+                      playCue("undo");
                     }}
                   >
                     ↶ 退回一针
@@ -669,13 +691,6 @@ export default function ToyRepair() {
           <img src={asset("gear")} alt="" />
           玩具修理所
         </span>
-        <button
-          className="tr-sound"
-          aria-pressed={save.sound}
-          onClick={() => setSave((s) => ({ ...s, sound: !s.sound }))}
-        >
-          {save.sound ? "声音开" : "声音关"}
-        </button>
       </header>
       <div className="tr-wrap">
         {tab !== "bench" && (

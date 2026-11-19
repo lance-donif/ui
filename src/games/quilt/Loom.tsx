@@ -1,4 +1,5 @@
 import { useRef, useState, type KeyboardEvent } from "react";
+import { playCue } from "../../shared/audio";
 import Badge from "./Badge";
 import { COLS, ROWS, groups, solvedLabel, type Save } from "./rules";
 
@@ -18,11 +19,15 @@ export default function Loom({ loom, update, back, collect }: Props) {
     if (loom.finished) return;
     const cells = loom.cells.slice();
     cells[i] = cells[i] === tool ? 0 : tool;
+    const finished = solvedLabel(cells);
+    if (finished) playCue("finish");
+    else if (cells[i] === 1) playCue("stitch");
+    else playCue(cells[i] === 0 ? "undo" : "select");
     update({
       ...loom,
       cells,
       history: [...loom.history, loom.cells],
-      finished: solvedLabel(cells),
+      finished,
     });
   }
   function navigate(e: KeyboardEvent<HTMLButtonElement>, i: number) {
@@ -53,6 +58,7 @@ export default function Loom({ loom, update, back, collect }: Props) {
             <button
               className="qw-primary"
               onClick={() => {
+                playCue("badge");
                 update({ ...loom, attached: true });
                 collect();
               }}
@@ -148,6 +154,8 @@ export default function Loom({ loom, update, back, collect }: Props) {
             className="qw-secondary"
             disabled={!loom.history.length}
             onClick={() => {
+              if (!loom.history.length) return;
+              playCue("undo");
               update({
                 ...loom,
                 cells: loom.history[loom.history.length - 1],

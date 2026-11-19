@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { playCue } from "../../shared/audio";
 import { hasGameProgress, readGameSave, writeGameSave } from "../../shared/storage";
 import Board from "./Board";
 import Loom from "./Loom";
@@ -166,12 +167,15 @@ export default function Quilt() {
       return;
     }
     if (finished(next)) {
+      playCue("finish");
       setOutcome({ round: next, time: now - (next.started ?? now) });
       setData((prev) => finishRecord(prev, next, now));
       go("result");
       return;
     }
-    setMessage(next.frame.pins !== round.frame.pins ? "针孔已点亮。" : "");
+    const passedPin = next.frame.pins !== round.frame.pins;
+    playCue(passedPin ? "pin" : "slide");
+    setMessage(passedPin ? "针孔已点亮。" : "");
     updateRound(next);
   }
   function leaveBoard() {
@@ -403,7 +407,10 @@ export default function Quilt() {
             art={pieceArt(piece)}
             onMove={moveTile}
             onUndo={() => {
-              updateRound(undo(round));
+              const previous = undo(round);
+              if (previous === round) return;
+              playCue("undo");
+              updateRound(previous);
               setMessage("已撤回一步。");
             }}
             leave={leaveBoard}
@@ -538,12 +545,13 @@ export default function Quilt() {
                   ) : (
                     <button
                       className="qw-link"
-                      onClick={() =>
+                      onClick={() => {
+                        playCue(data.loom.attached ? "undo" : "badge");
                         setData((prev) => ({
                           ...prev,
                           loom: { ...prev.loom, attached: !prev.loom.attached },
-                        }))
-                      }
+                        }));
+                      }}
                     >
                       {data.loom.attached ? "取下" : "装上"}郁金香布标
                     </button>

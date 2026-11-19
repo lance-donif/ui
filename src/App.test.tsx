@@ -6,7 +6,6 @@ import { App } from "./App";
 import { writeGameSave } from "./shared/storage";
 
 Object.assign(globalThis, { __UI_SDK_STRICT__: true });
-Element.prototype.getAnimations = () => [];
 afterEach(() => {
   cleanup();
   localStorage.clear();
@@ -32,7 +31,7 @@ test.each([
 ] as const)("a direct link to %s loads the playable first action", async (id, action) => {
   window.history.replaceState(null, "", "#/" + id);
   render(<App />);
-  expect(await screen.findByRole("button", { name: action }, { timeout: 5000 })).toBeDefined();
+  expect(await screen.findByRole("button", { name: action })).toBeDefined();
   expect(screen.getByRole("link", { name: /游戏大厅/ }).getAttribute("href")).toBe("#/");
 });
 

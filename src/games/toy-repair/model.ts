@@ -48,12 +48,10 @@ export interface StudioSave {
   last: Kind;
   sound: boolean;
 }
-export const freshSave = (): StudioSave => ({
-  active: {},
-  history: [],
-  last: "bear",
-  sound: true,
-});
+export function freshSave() {
+  const save: StudioSave = { active: {}, history: [], last: "bear", sound: true };
+  return save;
+}
 export const toys = {
   bear: {
     name: "小熊玩偶",
@@ -110,8 +108,8 @@ export function newJob(
   fault: Fault,
   preference: Preference,
   serial: number,
-): Job {
-  return {
+) {
+  const job: Job = {
     kind,
     fault,
     preference,
@@ -130,6 +128,7 @@ export function newJob(
     operations: 0,
     savedAngle: 0,
   };
+  return job;
 }
 const phases: Phase[] = [
   "inspect",
@@ -141,7 +140,7 @@ const phases: Phase[] = [
   "pass",
   "fail",
 ];
-function restoreJob(value: unknown, kind: Kind): Job | null {
+function restoreJob(value: unknown, kind: Kind) {
   if (!value || typeof value !== "object") return null;
   const j = value as Partial<Job>;
   if (
@@ -203,7 +202,7 @@ function restoreJob(value: unknown, kind: Kind): Job | null {
     job[key] = Number.isSafeInteger(job[key]) ? Math.max(0, job[key]) : 0;
   return job;
 }
-export function normalizeSave(input: StudioSave | null): StudioSave {
+export function normalizeSave(input: StudioSave | null) {
   const result = freshSave();
   if (!input || typeof input !== "object") return result;
   result.sound = typeof input.sound === "boolean" ? input.sound : true;
@@ -256,7 +255,7 @@ export function observation(job: Job, test: Test) {
       ? "轻拨时阻力很大，叶片与轴心一起停住。"
       : "叶片绕着轴心空转，轴心标记没有跟上。";
 }
-export function recordTest(job: Job, test: Test): Job {
+export function recordTest(job: Job, test: Test) {
   return {
     ...job,
     phase: "tests",
@@ -266,18 +265,18 @@ export function recordTest(job: Job, test: Test): Job {
       ? job.evidence
       : [...job.evidence, test],
     evidenceUse: test,
-  };
+  } satisfies Job;
 }
 export function diagnose(
   job: Job,
   test: Test,
   guess: Fault,
-): { job: Job; message: string } {
+) {
   if (job.phase !== "diagnose" || !job.evidence.includes(test))
     return { job, message: "先完成一次测试。" };
   if (job.kind === "wind" && test === "drive")
     return {
-      job: { ...job, phase: "tests" },
+      job: { ...job, phase: "tests" } satisfies Job,
       message: "两种故障都会让风轮停住。再试试轻拨叶片。",
     };
   if (guess !== job.fault)
@@ -286,13 +285,13 @@ export function diagnose(
       message: "这个假设和观察对不上。可以换个判断，或再做一次测试。",
     };
   return {
-    job: { ...job, phase: "choose", evidenceUse: test },
+    job: { ...job, phase: "choose", evidenceUse: test } satisfies Job,
     message: "证据吻合，选一种修法。",
   };
 }
-export function choosePlan(job: Job, route: "keep" | "swap"): Job {
+export function choosePlan(job: Job, route: "keep" | "swap") {
   return job.phase === "choose"
-    ? { ...job, phase: "repair", route, step: 0, repeat: 0 }
+    ? { ...job, phase: "repair", route, step: 0, repeat: 0 } satisfies Job
     : job;
 }
 
@@ -316,8 +315,9 @@ function drag(
   from: Point,
   to: Point,
   part?: string,
-): Action {
-  return { id, title, hint, tool, from, to, part };
+) {
+  const action: Action = { id, title, hint, tool, from, to, part };
+  return action;
 }
 function turn(
   id: string,
@@ -326,8 +326,9 @@ function turn(
   tool: Tool,
   pivot: Point,
   angle: number,
-): Action {
-  return { id, title, hint, tool, from: pivot, to: pivot, turn: angle };
+) {
+  const action: Action = { id, title, hint, tool, from: pivot, to: pivot, turn: angle };
+  return action;
 }
 export const carSocket: Point = [67, 53];
 const pin: Point = [50, 51];
@@ -347,7 +348,7 @@ export const holes: Point[] = [
   [49, 60],
   [58, 67],
 ];
-export function repairActions(job: Job): Action[] {
+export function repairActions(job: Job) {
   if (job.kind === "bear")
     return [
       drag(
@@ -609,7 +610,7 @@ export function repairActions(job: Job): Action[] {
     ),
   ];
 }
-export function currentAction(job: Job, test: Test | null): Action | null {
+export function currentAction(job: Job, test: Test | null) {
   if (job.phase === "inspect")
     return job.kind === "bear"
       ? drag(
@@ -698,18 +699,18 @@ export function completeAction(
   job: Job,
   accurate: boolean,
   test: Test | null,
-): Job {
+) {
   const action = currentAction(job, test);
   if (!action) return job;
   if (job.phase === "tests" && test) return recordTest(job, test);
   if (job.phase === "inspect")
-    return { ...job, phase: "repair", savedAngle: 0 };
+    return { ...job, phase: "repair", savedAngle: 0 } satisfies Job;
   if (job.phase === "trial")
     return {
       ...job,
       phase: job.weak === null ? "pass" : "fail",
       savedAngle: 0,
-    };
+    } satisfies Job;
   const weak = action.precision ? (accurate ? null : job.step) : job.weak;
   if (job.repeat + 1 < (action.repeats ?? 1))
     return { ...job, repeat: job.repeat + 1, savedAngle: 0 };
@@ -723,9 +724,9 @@ export function completeAction(
     operations: job.operations + 1,
     spent: action.id === "install" ? 1 : job.spent,
     phase: step === repairActions(job).length ? "trial" : "repair",
-  };
+  } satisfies Job;
 }
-export function retryRepair(job: Job): Job {
+export function retryRepair(job: Job) {
   return job.phase === "fail" && job.weak !== null
     ? {
         ...job,
@@ -735,10 +736,10 @@ export function retryRepair(job: Job): Job {
         repeat: 0,
         reworks: job.reworks + 1,
         savedAngle: 0,
-      }
+      } satisfies Job
     : job;
 }
-export function deliver(save: StudioSave, kind: Kind, now: number): StudioSave {
+export function deliver(save: StudioSave, kind: Kind, now: number) {
   const job = save.active[kind];
   if (!job || job.phase !== "pass") return save;
   const active = { ...save.active };

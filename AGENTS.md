@@ -16,6 +16,8 @@ https://ui-sdk.dev/docs/react/components
 每完成一个小迭代，就提交本次改动并推送到对应的远程分支。
 项目脚本使用 Bun 运行。前端有改动时，运行 `bun run build`，将根目录的 `index.html` 和 `site-assets/` 随源码一起提交，供 GitHub Pages 发布。
 
+运行 `npm ci` 安装锁定的开发依赖，提交前用 `bun run lint` 检查源码、测试及构建脚本。推送和拉取请求会运行相同的检查。仓库启用了 [Landmines](https://github.com/interfere-inc/landmines) 四组共十条规则，配置见 [.oxlintrc.json](.oxlintrc.json)。
+
 ## 使用 UI SDK
 
 使用 UI SDK 前，先遵循已安装的 `ui-sdk` 技能，并阅读 `node_modules/@ui-sdk/react/docs/llms.txt`。

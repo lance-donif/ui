@@ -56,7 +56,7 @@ export function adjacent(i: number, j: number, n: number) {
       1
   );
 }
-export function makeRound(piece: PieceId, mode: Mode): Round {
+export function makeRound(piece: PieceId, mode: Mode) {
   const n = getPiece(piece).size;
   const board = Array.from({ length: n * n }, (_, i) => (i + 1) % (n * n));
   let hole = board.length - 1;
@@ -70,15 +70,16 @@ export function makeRound(piece: PieceId, mode: Mode): Round {
     [board[next], board[hole]] = [board[hole], board[next]];
     hole = next;
   }
-  return { piece, mode, frame: { board, pins: 0 }, history: [], started: null };
+  const round: Round = { piece, mode, frame: { board, pins: 0 }, history: [], started: null };
+  return round;
 }
-export function pinsFor(id: PieceId): readonly [number, number] {
-  if (id === "kite") return [1, 3];
-  if (id === "leaves") return [2, 6];
+export function pinsFor(id: PieceId) {
+  if (id === "kite") return [1, 3] as const;
+  if (id === "leaves") return [2, 6] as const;
   const n = getPiece(id).size;
-  return [1, n * (n - 1)];
+  return [1, n * (n - 1)] as const;
 }
-export function move(round: Round, cell: number, now = Date.now()): Round {
+export function move(round: Round, cell: number, now = Date.now()) {
   const { board, pins } = round.frame;
   const hole = board.indexOf(0);
   if (
@@ -98,7 +99,7 @@ export function move(round: Round, cell: number, now = Date.now()): Round {
     started: round.mode === "timed" ? (round.started ?? now) : null,
   };
 }
-export function undo(round: Round): Round {
+export function undo(round: Round) {
   const previous = round.history.at(-1);
   return previous
     ? { ...round, history: round.history.slice(0, -1), frame: previous }
@@ -134,8 +135,8 @@ export function groups(line: number[]) {
   }
   return result;
 }
-export function emptySave(): Save {
-  return {
+export function emptySave() {
+  const save: Save = {
     recent: [],
     rounds: {},
     records: {},
@@ -146,12 +147,13 @@ export function emptySave(): Save {
       attached: false,
     },
   };
+  return save;
 }
 const validCells = (v: unknown): v is number[] =>
   Array.isArray(v) && v.length === 25 && v.every((n) => [0, 1, 2].includes(n));
 const finite = (v: unknown): v is number =>
   typeof v === "number" && Number.isFinite(v) && v >= 0;
-export function restore(raw: Save | null): Save {
+export function restore(raw: Save | null) {
   const data = emptySave();
   if (!raw || typeof raw !== "object") return data;
   for (const piece of PIECES) {
@@ -212,18 +214,18 @@ export function recentWithFirst(save: Save, key: string) {
     ),
   ];
 }
-export function activeTarget(save: Save): "loom" | Round | null {
+export function activeTarget(save: Save) {
   const canResumeLoom =
     !save.loom.finished &&
     !!save.records.kite &&
     (save.loom.history.length > 0 || save.recent.includes("loom"));
   for (const key of save.recent) {
-    if (key === "loom" && canResumeLoom) return "loom";
+    if (key === "loom" && canResumeLoom) return "loom" as const;
     if (save.rounds[key]) return save.rounds[key];
   }
-  return Object.values(save.rounds).at(-1) ?? (canResumeLoom ? "loom" : null);
+  return Object.values(save.rounds).at(-1) ?? (canResumeLoom ? "loom" as const : null);
 }
-export function finishRecord(save: Save, round: Round, now: number): Save {
+export function finishRecord(save: Save, round: Round, now: number) {
   const entry = { ...save.records[round.piece] };
   entry[round.mode] = Math.min(
     entry[round.mode] ?? Infinity,

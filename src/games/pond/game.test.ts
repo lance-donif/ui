@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { emptySave, jump, landings, levels, outcome, replay, restoreSave, unlocked } from './game';
-import type { Level, PondSave } from './game';
+import type { PondSave } from './game';
 
-function getLevel(id: string): Level {
+function getLevel(id: string) {
   const level = levels.find(candidate => candidate.id === id);
   if (!level) throw new Error(`Unknown test level: ${id}`);
   return level;

@@ -147,7 +147,7 @@ export default function ToyRepair() {
       audio.current ??= new AudioContext();
       playFeedback(audio.current, notes);
     } catch {
-      /* Visual feedback is always available. */
+      return;
     }
   }
   function changeJob(next: Job) {

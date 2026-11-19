@@ -10,7 +10,7 @@ const prefix = "lance-ui:games:";
 const changed = "arcade-save-change";
 const temporary = new Map<GameId, GameSave<unknown>>();
 
-function readEnvelope<T>(id: GameId): GameSave<T> | null {
+function readEnvelope<T>(id: GameId) {
   const session = temporary.get(id);
   if (session) return session as GameSave<T>;
   try {
@@ -25,11 +25,11 @@ function readEnvelope<T>(id: GameId): GameSave<T> | null {
   }
 }
 
-export function readGameSave<T>(id: GameId): T | null {
+export function readGameSave<T>(id: GameId) {
   return readEnvelope<T>(id)?.data ?? null;
 }
 
-export function writeGameSave<T>(id: GameId, data: T, hasProgress: boolean): void {
+export function writeGameSave<T>(id: GameId, data: T, hasProgress: boolean) {
   const entry: GameSave<T> = { version: 1, data, hasProgress };
   try {
     window.localStorage.setItem(prefix + id, JSON.stringify(entry));
@@ -40,11 +40,11 @@ export function writeGameSave<T>(id: GameId, data: T, hasProgress: boolean): voi
   window.dispatchEvent(new Event(changed));
 }
 
-export function hasGameProgress(id: GameId): boolean {
+export function hasGameProgress(id: GameId) {
   return readEnvelope(id)?.hasProgress === true;
 }
 
-export function storageUnavailable(): boolean {
+export function storageUnavailable() {
   try {
     void window.localStorage.length;
     return temporary.size > 0;
@@ -53,7 +53,7 @@ export function storageUnavailable(): boolean {
   }
 }
 
-export function subscribeToSaves(update: () => void): () => void {
+export function subscribeToSaves(update: () => void) {
   window.addEventListener(changed, update);
   window.addEventListener("storage", update);
   return () => {

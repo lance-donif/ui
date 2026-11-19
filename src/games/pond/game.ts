@@ -53,13 +53,13 @@ function adjacent(a: number, b: number) {
   return Math.abs(a % 3 - b % 3) + Math.abs(Math.floor(a / 3) - Math.floor(b / 3)) === 1;
 }
 
-export function landings(level: Level, pos: Position): number[] {
+export function landings(level: Level, pos: Position) {
   if (pos.left <= 0 || pos.frog === level.flag) return [];
   const candidates = level.paths ? level.paths[pos.frog] ?? [] : level.leaves.filter(cell => adjacent(cell, pos.frog));
   return candidates.filter(cell => !pos.sunk.includes(cell) && (cell !== level.flag || level.key === undefined || pos.key));
 }
 
-export function jump(level: Level, pos: Position, cell: number): Position {
+export function jump(level: Level, pos: Position, cell: number) {
   if (!landings(level, pos).includes(cell)) return pos;
   return {
     frog: cell,
@@ -70,7 +70,7 @@ export function jump(level: Level, pos: Position, cell: number): Position {
   };
 }
 
-export function replay(level: Level, moves: number[]): Position {
+export function replay(level: Level, moves: number[]) {
   const start: Position = { frog: level.start, left: level.limit, key: false, flower: false, sunk: [] };
   return moves.reduce((p, cell) => jump(level, p, cell), start);
 }
@@ -91,8 +91,9 @@ export type PondSave = {
   recent: string | null;
 };
 
-export function emptySave(): PondSave {
-  return { version: 1, runs: {}, records: {}, favorites: [], recent: null };
+export function emptySave() {
+  const save: PondSave = { version: 1, runs: {}, records: {}, favorites: [], recent: null };
+  return save;
 }
 
 export function unlocked(level: Level, records: RecordBook) {
@@ -101,7 +102,7 @@ export function unlocked(level: Level, records: RecordBook) {
   return index === 0 || !!records[regionLevels[index - 1].id];
 }
 
-export function restoreSave(stored: PondSave | null): PondSave {
+export function restoreSave(stored: PondSave | null) {
   const save = emptySave();
   if (!stored || stored.version !== 1) return save;
   for (const level of levels) {

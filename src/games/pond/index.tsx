@@ -21,11 +21,11 @@ function labelFor(id: Region) { return regions.find(region => region.id === id)!
 function numberOf(level: Level) {
   return String(levels.filter(l => l.region === level.region).indexOf(level) + 1).padStart(2, '0');
 }
-function startState(): State {
+function startState() {
   const book = restoreSave(readGameSave<PondSave>('pond'));
   const resume = levels.find(l => l.id === book.recent);
   return { book, page: resume ? 'play' : 'ponds', region: resume?.region ?? 'dawn',
-    level: resume ?? levels[0], moves: resume ? book.runs[resume.id] : [], overlay: null };
+    level: resume ?? levels[0], moves: resume ? book.runs[resume.id] : [], overlay: null } satisfies State;
 }
 
 const nav = [

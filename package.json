@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run --environment jsdom",
+    "lint": "oxlint --deny-warnings .",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "vite build",
     "postbuild": "node scripts/stage-pages.mjs",
@@ -19,11 +20,14 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@interfere/landmines": "0.1.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.13",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "happy-dom": "21.0.4",
     "jsdom": "^31.0.1",
+    "oxlint": "1.94.0",
     "typescript": "^7.0.2",
     "ui-skills": "0.2.4",
     "vite": "^8.3.8",

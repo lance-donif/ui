@@ -1,8 +1,7 @@
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, expect, test } from "vitest";
 import { hasGameProgress, readGameSave, storageUnavailable, writeGameSave } from "./storage";
 
 afterEach(() => {
-  vi.restoreAllMocks();
   localStorage.clear();
 });
 
@@ -16,11 +15,11 @@ test("isolates games and ignores an unreadable save", () => {
 
 test("keeps the latest action in this tab when storage is full, then persists on recovery", () => {
   writeGameSave("toy-repair", { step: 1 }, true);
-  const write = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("quota"); });
-  writeGameSave("toy-repair", { step: 2 }, true);
+  const oversized = { step: 2, payload: "x".repeat(5_000_000) };
+  writeGameSave("toy-repair", oversized, true);
   expect(storageUnavailable()).toBe(true);
-  expect(readGameSave("toy-repair")).toEqual({ step: 2 });
-  write.mockRestore();
+  expect(readGameSave("toy-repair")).toEqual(oversized);
+  expect(JSON.parse(localStorage.getItem("lance-ui:games:toy-repair")!).data).toEqual({ step: 1 });
   writeGameSave("toy-repair", { step: 3 }, false);
   expect(storageUnavailable()).toBe(false);
   expect(JSON.parse(localStorage.getItem("lance-ui:games:toy-repair")!).data).toEqual({ step: 3 });

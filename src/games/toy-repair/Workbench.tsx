@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { useRef, useState, type PointerEvent } from "react";
 import {
   carSocket,
   currentAction,
@@ -18,7 +18,7 @@ const images = import.meta.glob<string>("./art/*.webp", {
   import: "default",
 });
 export const asset = (name: string) => images[`./art/${name}.webp`];
-const pos = (point: Point): CSSProperties => ({
+const pos = (point: Point) => ({
   left: point[0] + "%",
   top: point[1] + "%",
 });
@@ -348,12 +348,12 @@ export default function Workbench({
   const [degrees, setDegrees] = useState(job.savedAngle);
   const [parkedAt, setParkedAt] = useState<Point | null>(null);
   const [primed, setPrimed] = useState(false);
-  function relative(e: PointerEvent): Point {
+  function relative(e: PointerEvent) {
     const r = board.current!.getBoundingClientRect();
     return [
       ((e.clientX - r.left) * 100) / r.width,
       ((e.clientY - r.top) * 100) / r.height,
-    ];
+    ] satisfies Point;
   }
   function correctTool() {
     if (!action) return false;

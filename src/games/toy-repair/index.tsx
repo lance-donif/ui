@@ -481,9 +481,6 @@ export default function ToyRepair() {
           </button>
         </section>
       );
-    const boardKey = [job.serial, job.phase, job.step, job.repeat, test].join(
-      "-",
-    );
     const status =
       job.phase === "pass"
         ? "试修通过"
@@ -509,7 +506,7 @@ export default function ToyRepair() {
         </div>
         <div className="tr-bench-layout" data-toy={kind} data-phase={job.phase} data-operating={Boolean(action)}>
           <Workbench
-            key={boardKey}
+            key={job.serial}
             job={job}
             tool={tool}
             test={test}

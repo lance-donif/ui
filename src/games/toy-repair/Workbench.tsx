@@ -1,4 +1,4 @@
-import { useRef, useState, type PointerEvent } from "react";
+import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import BearSeam from "./BearSeam";
 import { hitsHole } from "./bearSeamGeometry";
 import {
@@ -277,6 +277,17 @@ export default function Workbench({
   const [degrees, setDegrees] = useState(job.savedAngle);
   const [parkedAt, setParkedAt] = useState<Point | null>(null);
   const [primed, setPrimed] = useState(false);
+  const step = [job.phase, job.step, job.repeat, test].join("/");
+  const lastStep = useRef(step);
+  useLayoutEffect(() => {
+    if (lastStep.current === step) return;
+    lastStep.current = step;
+    movement.current = null;
+    setAt(null);
+    setDegrees(job.savedAngle);
+    setParkedAt(null);
+    setPrimed(false);
+  }, [step, job.savedAngle]);
   function relative(e: PointerEvent) {
     const r = board.current!.getBoundingClientRect();
     return [
@@ -442,6 +453,7 @@ export default function Workbench({
           />
         ) : (
           <Illustration
+            key={step}
             job={job}
             action={action}
             testing={test}

@@ -140,6 +140,7 @@
     outline: 4px solid #fffdf0;
     box-shadow: 0 0 0 9px #317997, 0 3px 0 10px #a6d2e2;
   }
+  .tr-bench-layout[data-toy="bear"] .tr-bear-needle { width: 25%; }
   .tr-bench-layout[data-toy="bear"][data-phase="repair"] .tr-toolbelt button:first-child { display: none; }
   .tr-game .tr-toolbelt {
     order: 1; width: 100%; margin: 7px 0 0; padding: 7px;

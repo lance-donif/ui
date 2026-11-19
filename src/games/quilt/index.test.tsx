@@ -167,3 +167,28 @@ it("棋盘与绣框交替时，重新进入直接落在最近一次操作的任�
   expect(tile(4).getAttribute("aria-label")).toContain("第 2 行第 1 列");
   expect(readGameSave<Save>("quilt")?.loom.cells[0]).toBe(1);
 });
+
+it("挂载时校正损坏进度的大厅续玩标记，保留收藏和布标历史", () => {
+  const data = emptySave();
+  data.records.kite = { classic: 3 };
+  data.loom = {
+    cells: STITCH.slice(),
+    history: [Array(25).fill(0)],
+    finished: true,
+    attached: true,
+  };
+  const broken = makeRound("kite", "thread");
+  broken.frame.board = [0, 0];
+  data.rounds["kite/thread"] = broken;
+  data.recent = ["kite/thread"];
+  writeGameSave("quilt", data, true);
+
+  const visit = render(<Quilt />);
+  expect(screen.getByRole("heading", { name: "挑一幅图样" })).toBeDefined();
+  visit.unmount();
+  expect(hasGameProgress("quilt")).toBe(false);
+  const repaired = readGameSave<Save>("quilt");
+  expect(repaired?.rounds).toEqual({});
+  expect(repaired?.records).toEqual(data.records);
+  expect(repaired?.loom).toEqual(data.loom);
+});

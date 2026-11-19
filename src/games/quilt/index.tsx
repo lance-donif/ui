@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { readGameSave, writeGameSave } from "../../shared/storage";
+import { hasGameProgress, readGameSave, writeGameSave } from "../../shared/storage";
 import Board from "./Board";
 import Loom from "./Loom";
 import Badge from "./Badge";
@@ -95,12 +95,13 @@ export default function Quilt() {
   const made = PIECES.filter((p) => data.records[p.id]);
   const target = activeTarget(data);
   const saved = target === "loom" ? null : target;
+  const hasTarget = target !== null;
   useEffect(() => {
-    if (stored.current !== data) {
+    if (stored.current !== data || hasGameProgress("quilt") !== hasTarget) {
       stored.current = data;
-      writeGameSave("quilt", data, !!activeTarget(data));
+      writeGameSave("quilt", data, hasTarget);
     }
-  }, [data]);
+  }, [data, hasTarget]);
   useEffect(() => {
     if (confirm && !dialog.current?.open) dialog.current?.showModal?.();
     if (!confirm) dialog.current?.close?.();

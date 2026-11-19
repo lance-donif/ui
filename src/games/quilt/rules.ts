@@ -197,7 +197,9 @@ export function restore(raw: Save | null): Save {
   }
   data.recent = Array.isArray(raw.recent)
     ? raw.recent.filter(
-        (k) => typeof k === "string" && (k === "loom" || !!data.rounds[k]),
+        (k) =>
+          typeof k === "string" &&
+          (k === "loom" ? validCells(s?.cells) : Object.hasOwn(data.rounds, k)),
       )
     : [];
   return data;

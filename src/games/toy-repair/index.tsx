@@ -502,6 +502,7 @@ export default function ToyRepair() {
         </section>
       );
     const stitching = kind === "bear" && action?.id === "stitch";
+    const showingDelivery = job.phase === "pass" && (kind === "bear" || kind === "car");
     const status =
       job.phase === "pass"
         ? "试修通过"
@@ -519,7 +520,10 @@ export default function ToyRepair() {
         <div className="tr-bench-top">
           <div>
             <span className="tr-kicker">维修室　/　#{toy.id}</span>
-            <h1><span className="tr-mobile">#{toy.id} </span>{toy.name}</h1>
+            <h1>
+              <span className="tr-mobile">{showingDelivery ? "交还玩具" : "#" + toy.id + " "}</span>
+              <span className={showingDelivery ? "tr-delivered-name" : undefined}>{toy.name}</span>
+            </h1>
           </div>
           <button className="tr-backlink" onClick={() => nav("counter")}>
             ← 回到柜台
@@ -540,8 +544,9 @@ export default function ToyRepair() {
             onProgress={(deg) => changeJob({ ...job, savedAngle: deg })}
             onMessage={setMessage}
           />
-          {job.phase === "pass" && (kind === "bear" || kind === "car") && (
+          {showingDelivery && (
             <div className="tr-mobile tr-delivery-art">
+              <strong>#{toy.id} {toy.name}</strong>
               <img src={asset(kind === "bear" ? "bear-done" : "car-delivery")} alt={kind === "bear" ? "修好的小熊玩偶" : "双手捧起修好的发条小车"} />
             </div>
           )}

@@ -132,3 +132,42 @@ span.arcade-game-brand > .qw-patch { width: 30px; height: 30px; flex: none; obje
 }
 
 @media (pointer: coarse) { html { scrollbar-gutter: auto; } }
+
+@media (max-width: 640px) {
+  .tr-game .arcade-mast {
+    --nav-rule: #aed9ed;
+    background-color: #c4e8fc;
+    background-image:
+      radial-gradient(#56add526 .7px, transparent .9px),
+      linear-gradient(105deg, #d2edfc, #bce3fa 70%, #c7eafa);
+    background-size: 5px 5px, auto;
+  }
+  .tr-game .arcade-mast-inner { position: relative; isolation: isolate; }
+  .tr-game .arcade-mast-inner::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    right: max(calc(var(--arcade-gutter) + 46px), calc(env(safe-area-inset-right) + 48px));
+    bottom: 4px;
+    width: clamp(24px, calc(30vw - 73px), 62px);
+    height: 36px;
+    background: url("./nav-art/repair-scenery.webp") right bottom / contain no-repeat;
+    pointer-events: none;
+  }
+  .tr-game .arcade-game-brand {
+    gap: 4px;
+    color: #173453;
+    font-size: clamp(18px, 5.1vw, 22px);
+    font-weight: 900;
+    letter-spacing: -.02em;
+    -webkit-text-stroke: 3px #fffdf6;
+    paint-order: stroke fill;
+    text-shadow: 0 2px 1px #5499b258;
+  }
+  .tr-game .arcade-game-brand > img {
+    content: url("./nav-art/repair-shop.webp");
+    width: 34px;
+    height: 34px;
+    filter: drop-shadow(0 1px 1px #5499b273);
+  }
+}

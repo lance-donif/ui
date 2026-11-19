@@ -13,6 +13,7 @@
   }
   .tr-wrap { padding-inline: clamp(10px, 3.2vw, 18px); }
   .tr-game .tr-mobile { display: block; }
+  .tr-game .tr-assist-compact { display: none; }
   .tr-game .tr-order-strip,
   .tr-game .tr-bench-top,
   .tr-game .tr-book > .tr-section-title {
@@ -50,7 +51,7 @@
     display: flex;
     flex-direction: column-reverse;
     gap: 0;
-    min-height: 0;
+    min-height: clamp(345px, calc(100svh - var(--arcade-mast-height, 56px) - var(--arcade-dock-height, 64px) - var(--arcade-dock-gap, 10px) - 96px), 720px);
     padding: clamp(10px, 3vw, 18px);
     border: 2px solid #fffaf2;
     border-radius: 19px;
@@ -59,6 +60,7 @@
   }
   .tr-counter-stage {
     align-items: center;
+    flex: 1 1 auto;
     height: clamp(195px, min(90vw, 46svh), 405px);
     min-height: 0;
     background: transparent;
@@ -71,13 +73,13 @@
     filter: drop-shadow(0 3px 2px #c49c7138);
   }
   .tr-counter-stage[data-toy="bear"] { justify-items: start; }
-  .tr-counter-stage[data-toy="bear"] .tr-featured-toy { width: 75%; }
+  .tr-counter-stage[data-toy="bear"] .tr-featured-toy { width: 83%; }
   .tr-counter-loupe {
     position: absolute;
     right: 0;
-    top: 14%;
-    width: 42%;
-    height: 61%;
+    top: 17%;
+    width: 45%;
+    height: 62%;
     object-fit: contain;
   }
   .tr-counter-paper { width: 100%; gap: 10px; padding: 4px 0 6px; background: none; }
@@ -116,6 +118,7 @@
     font-weight: 900;
   }
   .tr-game .tr-primary:hover { background: #126d91; }
+  .tr-counter-paper .tr-primary { min-height: clamp(48px, 6.4svh, 57px); font-size: clamp(17px, 5vw, 22px); }
   .tr-orders { grid-template-columns: 1fr 1fr; gap: 9px; }
   .tr-game .tr-order { flex-direction: column; min-height: 125px; padding: 8px; background: var(--toy-paper); border-radius: 15px; }
   .tr-order .tr-order-art { width: 100%; height: 85px; }
@@ -163,6 +166,44 @@
   .tr-game .tr-taskcard h2 { color: var(--toy-ink); }
   .tr-bench-layout[data-operating="true"] .tr-mobile-instruction,
   .tr-bench-layout[data-operating="true"] .tr-taskcard > .tr-phase { display: none; }
+  .tr-bench-layout[data-stitching="true"] {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 1fr;
+    align-items: start;
+    gap: 4px;
+  }
+  [data-stitching="true"] .tr-workunit,
+  [data-stitching="true"] .tr-taskcard { display: contents; }
+  [data-stitching="true"] .tr-board { grid-area: 1 / 1 / 2 / -1; justify-self: center; }
+  [data-stitching="true"] .tr-toolbelt { grid-area: 2 / 1 / 3 / -1; }
+  [data-stitching="true"] .tr-taskcard h2 { grid-area: 3 / 1; margin: 0; }
+  [data-stitching="true"] .tr-sewing-label,
+  [data-stitching="true"] .tr-assist-label,
+  [data-stitching="true"][data-stitch-hint="false"] #tr-stitch-hint { display: none; }
+  [data-stitching="true"] #tr-stitch-hint,
+  [data-stitching="true"] .tr-assisted,
+  [data-stitching="true"] .tr-feedback { grid-column: 1 / -1; }
+  [data-stitching="true"] #tr-stitch-hint { grid-row: 4; }
+  [data-stitching="true"] .tr-assisted { grid-row: 5; justify-content: center; }
+  [data-stitching="true"] .tr-feedback { grid-row: 6; }
+  [data-stitching="true"] .tr-feedback:empty { display: none; }
+  [data-stitching="true"] .tr-workunit .tr-assist { grid-area: 3 / 2; }
+  [data-stitching="true"] .tr-taskcard > .tr-backlink { grid-area: 3 / 3; margin: 0; }
+  [data-stitching="true"] :is(.tr-sewing-help, .tr-assist, .tr-taskcard > .tr-backlink) {
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+    width: 100%; min-height: 44px; border: 0; border-radius: 10px; padding: 3px 0;
+    background: transparent; color: #155070; font-family: inherit;
+    font-size: clamp(11px, 3.3vw, 14px); line-height: 1.3; font-weight: 700; text-underline-offset: 3px;
+  }
+  [data-stitching="true"] .tr-sewing-help { font-size: clamp(11px, 3.3vw, 14px); font-weight: 700; }
+  [data-stitching="true"] .tr-sewing-help span { border: 1px solid currentColor; border-radius: 50%; width: 1.2em; line-height: 1.1; }
+  [data-stitching="true"] .tr-assist-compact { display: inline; }
+  [data-stitching="true"] #tr-stitch-hint,
+  [data-stitching="true"] .tr-feedback:not(:empty) {
+    margin: 0; padding: 4px 10px; border: 0; background: #e5f3fb; border-radius: 9px;
+    color: #214457; font-size: 13px; line-height: 1.5;
+  }
+  [data-stitching="true"] .tr-assisted button { min-height: 44px; padding-inline: 16px; }
   .tr-bench-layout[data-phase="pass"] { display: grid; grid-template-columns: 1fr; }
   .tr-bench-layout[data-phase="pass"] > .tr-workunit,
   .tr-bench-layout[data-phase="pass"] > .tr-delivery-art { grid-area: 1 / 1; }
@@ -172,6 +213,7 @@
     animation: tr-delivery-appear .24s ease-out .95s both;
   }
   .tr-delivery-art img { display: block; width: 80%; height: clamp(180px, 35svh, 330px); object-fit: contain; }
+  [data-toy="car"] .tr-delivery-art img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
   .tr-bench-layout[data-phase="pass"] .tr-taskcard h2 { display: inline-flex; align-items: center; gap: 8px; color: #365c31; }
   .tr-bench-layout[data-phase="pass"] .tr-taskcard h2::before,
   .tr-approved::before { content: "✓"; display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 50%; background: #679b42; color: white; font-size: .8em; }

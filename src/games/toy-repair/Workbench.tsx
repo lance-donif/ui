@@ -541,10 +541,12 @@ export default function Workbench({
           <button
             type="button"
             className="tr-assist"
+            aria-label={assist ? "收起点按操作" : "使用点按或键盘操作"}
             aria-expanded={assist}
             onClick={() => onAssist(!assist)}
           >
-            {assist ? "收起点按操作" : "使用点按或键盘操作"}
+            <span className="tr-assist-label">{assist ? "收起点按操作" : "使用点按或键盘操作"}</span>
+            <span className="tr-mobile tr-assist-compact">{assist ? "收起辅助" : "点按辅助"}</span>
           </button>
           {assist && (
             <div className="tr-assisted">

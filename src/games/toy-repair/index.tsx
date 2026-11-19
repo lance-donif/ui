@@ -116,6 +116,7 @@ export default function ToyRepair() {
     save.active[save.last] ? "bench" : "counter",
   );
   const [assist, setAssist] = useState(false);
+  const [showStitchHint, setShowStitchHint] = useState(false);
   const [choosingOrder, setChoosingOrder] = useState(false);
   const [tool, setTool] = useState<Tool>("hand");
   const [message, setMessage] = useState("");
@@ -457,6 +458,7 @@ export default function ToyRepair() {
     const boardKey = [job.serial, job.phase, job.step, job.repeat, test].join(
       "-",
     );
+    const stitching = kind === "bear" && action?.id === "stitch";
     const status =
       job.phase === "pass"
         ? "试修通过"
@@ -480,7 +482,7 @@ export default function ToyRepair() {
             ← 回到柜台
           </button>
         </div>
-        <div className="tr-bench-layout" data-toy={kind} data-phase={job.phase} data-operating={Boolean(action)}>
+        <div className="tr-bench-layout" data-toy={kind} data-phase={job.phase} data-operating={Boolean(action)} data-stitching={stitching} data-stitch-hint={showStitchHint}>
           <Workbench
             key={boardKey}
             job={job}
@@ -495,7 +497,7 @@ export default function ToyRepair() {
           />
           {job.phase === "pass" && (kind === "bear" || kind === "car") && (
             <div className="tr-mobile tr-delivery-art">
-              <img src={asset(kind === "bear" ? "bear-done" : "car")} alt="修好的玩具" />
+              <img src={asset(kind === "bear" ? "bear-done" : "car-delivery")} alt={kind === "bear" ? "修好的小熊玩偶" : "双手捧起修好的发条小车"} />
             </div>
           )}
           <section className="tr-taskcard">
@@ -506,10 +508,17 @@ export default function ToyRepair() {
                 ? " · " + (job.repeat + 1) + " / " + action.repeats
                 : ""}
             </div>
-            <h2>{status}</h2>
+            <h2 aria-label={stitching ? status : undefined}>{stitching ? (
+              <>
+                <span className="tr-sewing-label">{status}</span>
+                <button type="button" className="tr-mobile tr-sewing-help" aria-label={status + "的操作说明"} aria-expanded={showStitchHint} aria-controls="tr-stitch-hint" onClick={() => setShowStitchHint(!showStitchHint)}>
+                  <span aria-hidden="true">?</span>{status}
+                </button>
+              </>
+            ) : status}</h2>
             {action && (
               <>
-                <p>{action.hint}</p>
+                <p id={stitching ? "tr-stitch-hint" : undefined}>{action.hint}</p>
                 <div className="tr-needed">
                   <img src={asset(action.tool)} alt="" />
                   本步工具 <b>{toolNames[action.tool]}</b>

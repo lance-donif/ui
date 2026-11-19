@@ -1,66 +1,69 @@
-import { Tabs, TabsList, TabsPanel, TabsTab, TabsTabIcon } from "@ui-sdk/react/tabs";
+import { Component, lazy, Suspense, useEffect, useRef, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
+import { catalog, Hall, HallHeader } from "./hub/Hall";
+import { Resources } from "./hub/Resources";
+import { storageUnavailable, subscribeToSaves } from "./shared/storage";
 
-const resources = [
-  {
-    value: "guide",
-    label: "入门",
-    icon: "🧭",
-    title: "React 快速入门",
-    detail: "查看安装命令、环境要求和给开发代理的提示词。",
-    link: "阅读指南",
-    url: "https://ui-sdk.dev/docs/react#quick-start",
-  },
-  {
-    value: "components",
-    label: "组件",
-    icon: "🧩",
-    title: "React 组件目录",
-    detail: "从标签页、菜单到选择器，查看组件用法和交互示例。",
-    link: "浏览组件",
-    url: "https://ui-sdk.dev/docs/react/components",
-  },
-  {
-    value: "source",
-    label: "源码",
-    icon: "🗂️",
-    title: "lance-donif/ui",
-    detail: "查看起始页的源码、项目约定和提交记录。",
-    link: "打开 GitHub",
-    url: "https://github.com/lance-donif/ui",
-  },
-];
+const gameModules = import.meta.glob<{ default: ComponentType }>("./games/*/index.tsx");
+const games = Object.fromEntries(Object.entries(gameModules).map(([path, load]) => [path.split("/")[2], lazy(load)]));
+
+function watchRoute(notify: () => void) {
+  window.addEventListener("hashchange", notify);
+  return () => window.removeEventListener("hashchange", notify);
+}
+
+function currentRoute() {
+  return window.location.hash.slice(1) || "/";
+}
+
+class GameBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (this.state.failed) {
+      return (
+        <main className="lobby-message">
+          <h1>游戏暂时无法打开</h1>
+          <button type="button" onClick={() => window.location.reload()}>重新载入</button>
+          <a href="#/">返回游戏大厅</a>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export function App() {
+  const route = useSyncExternalStore(watchRoute, currentRoute);
+  const unavailable = useSyncExternalStore(subscribeToSaves, storageUnavailable);
+  const surface = useRef<HTMLDivElement>(null);
+  const previous = useRef(route);
+  const resources = route === "/resources";
+  const game = catalog.find(item => route === "/" + item.id);
+  const Game = game && games[game.id];
+  useEffect(() => {
+    document.title = game ? game.title + " · 口袋游乐室" : resources ? "项目资源 · 口袋游乐室" : "口袋游乐室";
+    if (previous.current !== route) {
+      document.documentElement.scrollTop = 0;
+      surface.current?.focus({ preventScroll: true });
+      previous.current = route;
+    }
+  }, [game, resources, route]);
+
   return (
-    <main className="guide">
-      <header className="cover">
-        <div>
-          <p className="repo">lance-donif / ui</p>
-          <h1>UI SDK</h1>
-          <p className="subtitle">React 项目起始页</p>
+    <div ref={surface} className="arcade-surface" tabIndex={-1}>
+      {unavailable && <aside role="status" className="save-warning">浏览器存储不可用。可以继续玩，本次进度只保留到页面关闭或刷新。</aside>}
+      {route === "/" || resources ? (
+        <div className="lobby">
+          <HallHeader resources={resources} />
+          {resources ? <Resources /> : <Hall />}
         </div>
-        <div className="notebook" aria-hidden="true">
-          <i className="ribbon" />
-          <i className="bookplate">✦</i>
-        </div>
-      </header>
-      <Tabs defaultValue="guide" aria-label="项目资源">
-        <TabsList className="dock" aria-label="选择项目资源">
-          {resources.map(({ value, label, icon }) => (
-            <TabsTab className="tab" key={value} value={value}>
-              <TabsTabIcon className="sticker">{icon}</TabsTabIcon>
-              {label}
-            </TabsTab>
-          ))}
-        </TabsList>
-        {resources.map(({ value, title, detail, link, url }) => (
-          <TabsPanel className="panel" key={value} value={value}>
-            <h2>{title}</h2>
-            <p>{detail}</p>
-            <a href={url}>{link}<span aria-hidden="true">↗</span></a>
-          </TabsPanel>
-        ))}
-      </Tabs>
-    </main>
+      ) : Game ? (
+        <GameBoundary key={route}>
+          <Suspense fallback={<p role="status" className="lobby-message">正在打开{game.title}…</p>}><Game /></Suspense>
+        </GameBoundary>
+      ) : (
+        <main className="lobby-message"><h1>找不到这款游戏</h1><a href="#/">返回游戏大厅</a></main>
+      )}
+    </div>
   );
 }

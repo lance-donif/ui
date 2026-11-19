@@ -32,7 +32,6 @@ function paintFabric(
   loose: boolean,
 ) {
   ctx.drawImage(img, 0, 0, fabricSize, fabricSize);
-  // Move original rows of fur away from the joint. The outer edge of each patch stays fixed.
   const reach = toPixel(fabricReach);
   for (let row = 181; row < 465; row++) {
     const y = (row * 100) / fabricSize,
@@ -53,7 +52,6 @@ function paintFabric(
       1,
     );
     ctx.drawImage(img, x, row, reach, 1, x + gap, row, reach - gap, 1);
-    // Real nap from the same arm is also visible on the turned-under seam allowance.
     ctx.drawImage(
       img,
       459,
@@ -75,7 +73,6 @@ function paintFabric(
     if (batting?.complete && batting.naturalWidth) {
       const at = (y - 43.5) / 7.2;
       if (at > -1 && at < 1 && gap > 1) {
-        // A sliver of actual batting sits behind the right-hand lip.
         const thickness = gap * 0.78 * Math.sqrt(1 - at * at);
         ctx.globalAlpha = 0.67;
         ctx.drawImage(
@@ -130,16 +127,15 @@ function sewnThread(
     ay = toPixel(a[1]),
     dx = toPixel(b[0] - a[0]),
     dy = toPixel(b[1] - a[1]);
-  // The thread runs beneath the pile as it leaves each hole. Only the span crossing
-  // the joint sits fully above the fur; adjacent stitches must not form a raised zigzag.
-  const sample = (t: number): Point => [
-    ax + dx * t * t * (3 - 2 * t) + (slack ? 9 * Math.sin(Math.PI * t) : 0),
-    ay +
-      dy *
-        (3 * t * (1 - t) * (1 - t) * 0.88 +
-          3 * t * t * (1 - t) * 0.12 +
-          t * t * t),
-  ];
+  const sample = (t: number) =>
+    [
+      ax + dx * t * t * (3 - 2 * t) + (slack ? 9 * Math.sin(Math.PI * t) : 0),
+      ay +
+        dy *
+          (3 * t * (1 - t) * (1 - t) * 0.88 +
+            3 * t * t * (1 - t) * 0.12 +
+            t * t * t),
+    ] satisfies Point;
   const steps = 30;
   ctx.save();
   ctx.lineCap = "round";
@@ -225,10 +221,10 @@ export default function BearSeam({ job, action, contact, needleReady }: Props) {
       const f = animate ? Math.min(1, (t - start) / 180) : 1,
         blend = f * f * (3 - 2 * f);
       paintFabric(ctx, img, batting.current, sewn, prior, blend, pull, loose);
-      const points = closedHoles.map((_, i): Point => {
+      const points = closedHoles.map((_, i) => {
         const a = needleHole(i, prior),
           b = needleHole(i, sewn);
-        return [a[0] + (b[0] - a[0]) * blend, b[1]];
+        return [a[0] + (b[0] - a[0]) * blend, b[1]] satisfies Point;
       });
       if (showHoles)
         points.forEach((p, i) => puncture(ctx, p, i <= sewn && sewn > 0));
@@ -253,7 +249,6 @@ export default function BearSeam({ job, action, contact, needleReady }: Props) {
     if (!ctx) return;
     ctx.clearRect(0, 0, fabricSize, fabricSize);
     if (sewing && tip && contact) {
-      // The steel point tracks the finger. The live strand feeds into the eye above it.
       thread(
         ctx,
         needleHole(sewn, sewn),

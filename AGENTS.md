@@ -12,3 +12,8 @@ https://ui-sdk.dev/docs/react/components
 ## 开发流程
 
 每完成一个小迭代，就提交本次改动并推送到对应的远程分支。
+
+## 使用 UI SDK
+
+使用 UI SDK 前，先遵循已安装的 `ui-sdk` 技能，并阅读 `node_modules/@ui-sdk/react/docs/llms.txt`。
+构建新组件时，按标题检索同目录的 `core.md`，并阅读 `rendering.md`。

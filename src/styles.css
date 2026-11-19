@@ -1,0 +1,138 @@
+@layer ui-sdk;
+
+@font-face {
+  font-family: "Nunito Variable";
+  src: url("@fontsource-variable/nunito/files/nunito-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+}
+
+:root {
+  font-family: "Nunito Variable", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color: #173e4f;
+  background: #d9eff6;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+#root {
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  padding: 2.5rem 1rem;
+  background-image: radial-gradient(ellipse 3px 1px, #badde8 82%, transparent),
+                    radial-gradient(ellipse 1px 3px, #badde8 82%, transparent);
+  background-size: 28px 28px;
+}
+
+.guide {
+  width: min(100%, 38rem);
+  padding: clamp(1.35rem, 5vw, 3rem);
+  background: #fffdf6;
+  border: 1px solid #97bfca;
+  border-radius: 2rem;
+  box-shadow: 0 5px 0 #aacfd9, 0 18px 40px -26px #235f77;
+}
+
+.cover {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: .35rem 2rem;
+}
+
+h1, h2, p { margin: 0; }
+.repo { color: #446775; font-weight: 750; font-size: .9rem; }
+h1 {
+  font-size: clamp(3.3rem, 10vw, 5rem);
+  font-weight: 950;
+  letter-spacing: -.07em;
+  line-height: 1.1;
+  margin: .32rem 0 .4rem;
+}
+.subtitle { color: #446775; font-weight: 650; }
+
+.notebook {
+  position: relative;
+  flex: none;
+  width: clamp(3.75rem, 14vw, 6.25rem);
+  aspect-ratio: 4 / 5;
+  display: grid;
+  place-items: center;
+  margin: 0 .75rem;
+  background: linear-gradient(90deg, #e79839 13%, #ffd275 13%);
+  border: 5px solid white;
+  border-radius: .8rem 1.15rem 1.15rem .8rem;
+  box-shadow: inset 0 -6px #e6a244, 0 2px 0 2px #b9cbd0, 3px 7px 0 #e1e6dc;
+  transform: rotate(10deg);
+}
+.ribbon {
+  position: absolute;
+  inset: 0 12% auto auto;
+  width: 15%;
+  height: 24%;
+  background: #3186a3;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
+}
+.bookplate {
+  padding: .04em .22em;
+  color: #277797;
+  background: #fffcf2;
+  border-radius: 32%;
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-style: normal;
+  line-height: 1.3;
+}
+
+.dock {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .35rem;
+  padding: .45rem;
+  border-radius: 1.2rem;
+  background: #236982;
+  box-shadow: inset 0 -3px #18566f;
+}
+.tab {
+  display: grid;
+  justify-items: center;
+  gap: .15rem;
+  padding: .55rem .25rem;
+  border: 0;
+  border-radius: .8rem;
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 800;
+  color: white;
+  background: transparent;
+  cursor: pointer;
+}
+.tab:hover { background: #205a70; }
+.tab[data-selected] { color: #153f52; background: #d8f0f5; }
+.tab:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+.sticker {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.75rem;
+  line-height: 1.25;
+  filter: drop-shadow(1px 0 white) drop-shadow(-1px 0 white) drop-shadow(0 1px white);
+}
+
+.panel { padding: 1.65rem .15rem 0; }
+h2 { font-size: 1.3rem; font-weight: 850; }
+.panel p { margin-top: .45rem; color: #466572; font-size: .95rem; line-height: 1.65; }
+.panel a {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  min-height: 44px;
+  margin-top: .6rem;
+  color: #155a77;
+  font-weight: 800;
+  text-underline-offset: .25em;
+}
+.panel a:hover { color: #123c50; }
+.panel a:focus-visible, .panel:focus-visible { outline: 2px solid #276987; outline-offset: 3px; }

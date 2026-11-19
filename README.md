@@ -19,3 +19,7 @@ npm run dev
 ```
 
 应用源码在 `src/`。运行 `npm run typecheck` 检查类型，`npm test` 检查标签页交互，`npm run build` 生成生产版本。
+
+## GitHub Pages
+
+站点从 `main` 的根目录发布。前端改动后运行 `npm run build`，将生成的 `index.html` 和 `site-assets/` 随源码一起推送。GitHub Pages 会自动发布该提交。[访问起始页](https://lance-donif.github.io/ui/)

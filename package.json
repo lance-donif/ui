@@ -8,6 +8,7 @@
     "test": "vitest run --environment jsdom",
     "typecheck": "tsc --noEmit",
     "build": "vite build",
+    "postbuild": "node scripts/stage-pages.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -12,6 +12,7 @@ https://ui-sdk.dev/docs/react/components
 ## 开发流程
 
 每完成一个小迭代，就提交本次改动并推送到对应的远程分支。
+前端有改动时，运行 `npm run build`，将根目录的 `index.html` 和 `site-assets/` 随源码一起提交，供 GitHub Pages 发布。
 
 ## 使用 UI SDK
 

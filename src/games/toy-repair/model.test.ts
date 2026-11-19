@@ -173,10 +173,8 @@ describe("右臂接缝的实际触点", () => {
     [317, 391],
     [352, 436],
   ];
-  const original = (p: [number, number]): [number, number] => [
-    (p[0] * 100) / 622,
-    (p[1] * 100) / 622,
-  ];
+  const original = (p: [number, number]) =>
+    [(p[0] * 100) / 622, (p[1] * 100) / 622] satisfies [number, number];
   it.each([270, 344, 510])(
     "在 %ipx 工作图上只接受正确布边的最近针孔",
     (width) => {

@@ -1,6 +1,5 @@
 import type { Point } from "./model";
 
-// Pixel samples from the dark joint under the bow in the 622px square illustration.
 export const fabricSize = 622;
 const joint: Point[] = [
   [297, 178],
@@ -48,7 +47,6 @@ export function seamCenter(y: number) {
   return percent(a[0] + (b[0] - a[0]) * clamp((row - a[1]) / (b[1] - a[1])));
 }
 
-// Width of one opening lip in board coordinates. Each stitch closes its own span.
 export function gapAt(y: number, sewn: number, pull = 0, loose = false) {
   const profile = Math.sin(Math.PI * clamp((y - 29.5) / 44));
   const boundary = sewn === 0 ? 27 : closedHoles[Math.min(5, sewn)][1];
@@ -59,13 +57,13 @@ export function gapAt(y: number, sewn: number, pull = 0, loose = false) {
   );
 }
 
-export function needleHole(index: number, sewn: number): Point {
+export function needleHole(index: number, sewn: number) {
   const [x, y] = closedHoles[index],
     dx = x - seamCenter(y);
   return [
     x + Math.sign(dx) * gapAt(y, sewn) * (1 - Math.abs(dx) / fabricReach),
     y,
-  ];
+  ] satisfies Point;
 }
 export function hitsHole(
   point: Point,

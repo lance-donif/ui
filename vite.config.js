@@ -1,21 +1,24 @@
 import { configDefaults, defineConfig } from "vitest/config";
 
+const animationTests = ["App.test.tsx", "shared/AudioSettings.test.tsx"];
+
 export default defineConfig({
   root: "src",
   base: "./",
   test: {
+    maxWorkers: 2,
     projects: [
       {
         extends: true,
         test: {
           name: "game",
           environment: "jsdom",
-          exclude: [...configDefaults.exclude, "App.test.tsx"],
+          exclude: [...configDefaults.exclude, ...animationTests],
         },
       },
       {
         extends: true,
-        test: { name: "app", environment: "happy-dom", include: ["App.test.tsx"] },
+        test: { name: "app", environment: "happy-dom", include: animationTests },
       },
     ],
   },

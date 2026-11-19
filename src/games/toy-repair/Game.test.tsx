@@ -22,7 +22,7 @@ describe("维修室正常入口", () => {
     const cues = vi.spyOn(audio, "playCue");
     const game = render(<Game />);
     click(/接单并进入维修室/);
-    expect(screen.queryByRole("navigation", { name: "修理所" })).toBeNull();
+    expect(document.querySelector('.tr-tabs [aria-current="page"]')?.getAttribute("aria-label")).toBe("维修室");
     click("使用点按或键盘操作");
     const drop = () => {
       click("握住起点");

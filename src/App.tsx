@@ -1,6 +1,7 @@
 import { Component, lazy, Suspense, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { catalog, Hall, HallHeader } from "./hub/Hall";
 import { Resources } from "./hub/Resources";
+import { connectAudio, setAudioScene } from "./shared/audio";
 import { storageUnavailable, subscribeToSaves } from "./shared/storage";
 
 const games = {
@@ -43,6 +44,9 @@ export function App() {
   const resources = route === "/resources";
   const game = catalog.find(item => route === "/" + item.id);
   const Game = game && games[game.id];
+  const audioScene = game?.id ?? "lobby";
+  useEffect(connectAudio, []);
+  useEffect(() => { setAudioScene(audioScene); }, [audioScene]);
   useEffect(() => {
     document.title = game ? game.title + " · 口袋游乐室" : resources ? "项目资源 · 口袋游乐室" : "口袋游乐室";
     if (previous.current !== route) {

@@ -1,7 +1,7 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createAgent } from "@ui-sdk/react/agent";
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { App } from "./App";
 import { writeGameSave } from "./shared/storage";
 
@@ -31,7 +31,8 @@ test.each([
 ] as const)("a direct link to %s loads the playable first action", async (id, action) => {
   window.history.replaceState(null, "", "#/" + id);
   render(<App />);
-  expect(await screen.findByRole("button", { name: action })).toBeDefined();
+  await act(() => vi.dynamicImportSettled());
+  expect(screen.getByRole("button", { name: action })).toBeDefined();
   expect(screen.getByRole("link", { name: /游戏大厅/ }).getAttribute("href")).toBe("#/");
 });
 

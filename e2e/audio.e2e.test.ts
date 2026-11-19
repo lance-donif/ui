@@ -3,8 +3,6 @@ import { resolve } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { box, button, drag, press } from "./play.test-utils";
 
-test.describe.configure({ timeout: 75_000 });
-
 async function observeAudio(page: Page) {
   const session = await page.context().newCDPSession(page);
   const contexts = new Set<string>();

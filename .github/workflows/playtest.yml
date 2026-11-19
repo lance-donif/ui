@@ -1,0 +1,32 @@
+name: Game playtests
+on: [push, pull_request]
+permissions:
+  contents: read
+
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: python -m pip install -r scripts/requirements-visual.txt
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun run test:e2e
+      - run: python scripts/compare-mobile-designs.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playtest-evidence
+          path: test-results/

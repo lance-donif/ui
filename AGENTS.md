@@ -18,6 +18,10 @@ https://ui-sdk.dev/docs/react/components
 
 运行 `npm ci` 安装锁定的开发依赖，提交前用 `bun run lint` 检查源码、测试及构建脚本。推送和拉取请求会运行相同的检查。仓库启用了 [Landmines](https://github.com/interfere-inc/landmines) 四组共十条规则，配置见 [.oxlintrc.json](.oxlintrc.json)。
 
+玩家反馈操作或布局有误时，负责游戏的智能体负责在 [e2e](e2e) 重现，并从大厅亲自跑完修正后的游戏路径。用例覆盖真实鼠标和模拟触屏。首次运行使用 `npx playwright install --with-deps chromium` 与 `python -m pip install -r scripts/requirements-visual.txt`。随后运行 `bun run test:e2e` 和 `python scripts/compare-mobile-designs.py`。指定 `PLAYTEST_URL=https://lance-donif.github.io/ui/` 可对公开站复跑同一套用例。
+
+手机设计复核从两本 PDF 裁取对应的手机画面。截图和测量在 `test-results/design-review/`，工作流会保留对照图与失败轨迹。美术与命中区域一起改时，按画面中的真实物件选择独立测试坐标。小熊回归会检查缝针前后的像素，确认五针落在右臂缝口。
+
 ## 使用 UI SDK
 
 使用 UI SDK 前，先遵循已安装的 `ui-sdk` 技能，并阅读 `node_modules/@ui-sdk/react/docs/llms.txt`。

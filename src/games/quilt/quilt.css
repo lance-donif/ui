@@ -119,6 +119,7 @@
   text-underline-offset: 4px;
 }
 .qw-hero {
+  background-image: url("./assets/hero.webp");
   isolation: isolate;
   overflow: hidden;
   position: relative;

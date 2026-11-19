@@ -26,15 +26,11 @@ import {
 } from "./rules";
 import patternsIcon from "../../shared/nav-art/patterns.webp";
 import albumIcon from "../../shared/nav-art/album.webp";
-import hero from "./assets/hero.webp";
-import kite from "./assets/kite.webp";
-import sail from "./assets/sail.webp";
-import tulip from "./assets/tulip.webp";
 import basket from "./assets/basket.webp";
-import leaves from "./assets/leaves.webp";
+import FabricArt from "./FabricArt";
 import "./quilt.css";
 
-const art = { kite, sail, tulip, basket, leaves };
+import "./mobile.css";
 type Section = "library" | "show" | "album";
 type View = Section | "detail" | "work" | "board" | "result" | "loom";
 const tabs: ReadonlyArray<[Section, string]> = [
@@ -64,9 +60,6 @@ function Patch({ small = false }: { small?: boolean }) {
       <i />
     </span>
   );
-}
-function pieceArt(piece: Piece) {
-  return art[piece.art];
 }
 export default function Quilt() {
   const [data, setData] = useState(() => restore(readGameSave<Save>("quilt")));
@@ -100,6 +93,8 @@ export default function Quilt() {
   const target = activeTarget(data);
   const saved = target === "loom" ? null : target;
   const hasTarget = target !== null;
+  const featured = saved ? getPiece(saved.piece) : PIECES[0];
+  const continueLabel = saved ? "继续上次拼图" : target === "loom" ? "继续绣布标" : "开始拼图";
   useEffect(() => {
     if (stored.current !== data || hasGameProgress("quilt") !== hasTarget) {
       stored.current = data;
@@ -199,7 +194,7 @@ export default function Quilt() {
   }
   function cards(pieces: readonly Piece[], from: Section) {
     return (
-      <div className="qw-cards">
+      <div className={"qw-cards qw-list-" + from}>
         {pieces.map((p) => {
           const completed = !!data.records[p.id],
             progress = Object.values(data.rounds).find((r) => r.piece === p.id);
@@ -207,13 +202,15 @@ export default function Quilt() {
           return (
             <button
               key={p.id}
+              data-featured={p.id === featured.id || undefined}
+              data-leading={from === "album" && p.id === made[0]?.id || undefined}
               className={"qw-card" + (locked ? " qw-locked" : "")}
               onClick={() => select(p, from)}
               disabled={locked}
             >
               <span className="qw-card-image">
-                <img
-                  src={pieceArt(p)}
+                <FabricArt
+                  piece={p}
                   alt={p.title + "拼布图样"}
                   draggable={false}
                 />
@@ -229,12 +226,12 @@ export default function Quilt() {
               <span className="qw-card-info">
                 <span>
                   <small>
-                    {p.season} · {p.size} × {p.size}
+                    <span className="qw-season">{p.season} · </span>{p.size} × {p.size}
                   </small>
                   <strong>{p.title}</strong>
                 </span>
                 <span className="qw-round-arrow" aria-hidden="true">
-                  ↗
+                  <span className="qw-desktop-label">↗</span><span className="qw-mobile-label">›</span>
                 </span>
               </span>
             </button>
@@ -243,11 +240,11 @@ export default function Quilt() {
       </div>
     );
   }
-  const currentTab = tabs.some(([s]) => s === view) ? view : source;
+  const currentTab = view === "result" ? "album" : tabs.some(([s]) => s === view) ? view : source;
   const choices: Mode[] =
     piece.id === "leaves" ? ["thread"] : ["classic", "thread"];
   return (
-    <main className="qw">
+    <main className="qw" data-view={view}>
       <ArcadeHeader onHomeClick={(event) => {
         if (view === "board" && mode === "timed" && round?.started != null) {
           event.preventDefault();
@@ -259,10 +256,14 @@ export default function Quilt() {
       <div className="qw-shell">
         {view === "library" && (
           <>
-            <section
-              className="qw-hero"
-              style={{ backgroundImage: `url("${hero}")` }}
-            >
+            <section className="qw-hero">
+              <button
+                className="qw-feature-image"
+                aria-label={featured.title + "，查看图样与挑战"}
+                onClick={() => select(featured, PIECES.indexOf(featured) < 3 ? "library" : "show")}
+              >
+                <FabricArt piece={featured} featured alt="" />
+              </button>
               <div className="qw-hero-content">
                 <p className="qw-eyebrow">经典滑块拼图</p>
                 <h1>
@@ -271,13 +272,17 @@ export default function Quilt() {
                   春天的布画
                 </h1>
                 <p>滑动一块布，接起一段风筝线。</p>
-                <button className="qw-primary" onClick={continueAtelier}>
-                  {saved
-                    ? "继续上次拼图"
-                    : target === "loom"
-                      ? "继续绣布标"
-                      : "开始拼风筝"}{" "}
-                  <span>→</span>
+                <div className="qw-feature-caption">
+                  <h1>{featured.title}</h1>
+                  <span className="qw-size">{featured.size} × {featured.size}</span>
+                </div>
+                <button
+                  className="qw-primary"
+                  aria-label={!hasTarget ? "开始拼图 · 开始拼风筝" : continueLabel}
+                  onClick={continueAtelier}
+                >
+                  <span className="qw-desktop-label">{hasTarget ? continueLabel : "开始拼风筝"} →</span>
+                  <span className="qw-mobile-label">{continueLabel}</span>
                 </button>
               </div>
             </section>
@@ -340,7 +345,7 @@ export default function Quilt() {
             </button>
             <div className="qw-details">
               <figure>
-                <img src={pieceArt(piece)} alt={piece.title + "成品图样"} />
+                <FabricArt piece={piece} alt={piece.title + "成品图样"} />
               </figure>
               <div>
                 <p className="qw-eyebrow">
@@ -381,7 +386,6 @@ export default function Quilt() {
           <Board
             key={key}
             round={round}
-            art={pieceArt(piece)}
             onMove={moveTile}
             onUndo={() => {
               const previous = undo(round);
@@ -405,7 +409,7 @@ export default function Quilt() {
           <section className="qw-inner">
             <div className="qw-details qw-result">
               <figure>
-                <img src={pieceArt(piece)} alt={piece.title + "已完成"} />
+                <FabricArt piece={piece} alt={piece.title + "已完成"} />
                 {id === "kite" && data.loom.attached && <Badge />}
               </figure>
               <div>
@@ -432,7 +436,7 @@ export default function Quilt() {
                     </dd>
                   </div>
                 </dl>
-                <button className="qw-primary" onClick={() => go("work")}>
+                <button className="qw-primary qw-result-work" onClick={() => go("work")}>
                   查看作品 →
                 </button>
                 <button
@@ -442,7 +446,7 @@ export default function Quilt() {
                   重玩同一局
                 </button>
                 <button
-                  className="qw-link"
+                  className="qw-link qw-result-next"
                   onClick={() => {
                     const next = PIECES[PIECES.indexOf(piece) + 1];
                     if (next)
@@ -471,7 +475,7 @@ export default function Quilt() {
                   aria-label={"放大查看" + piece.title}
                   onClick={() => artViewer.current?.showModal()}
                 >
-                  <img src={pieceArt(piece)} alt={piece.title + "作品"} />
+                  <FabricArt piece={piece} alt={piece.title + "作品"} />
                   {id === "kite" && data.loom.attached && <Badge />}
                 </button>
               </figure>
@@ -552,7 +556,7 @@ export default function Quilt() {
           />
         )}
       </div>
-      {["library", "show", "album"].includes(view) && (
+      {["library", "show", "album", "result"].includes(view) && (
         <nav className="arcade-dock qw-tabs" aria-label="工坊导航">
           {tabs.map(([sectionId, label]) => (
             <button key={sectionId} aria-current={currentTab === sectionId ? "page" : undefined}
@@ -568,7 +572,7 @@ export default function Quilt() {
         ref={artViewer}
         aria-label={piece.title + "作品大图"}
       >
-        <img src={pieceArt(piece)} alt={piece.title + "刺绣细节"} />
+        <FabricArt piece={piece} alt={piece.title + "刺绣细节"} />
         {id === "kite" && data.loom.attached && <Badge />}
         <button
           className="qw-secondary"

@@ -16,9 +16,10 @@ import {
   type Round,
 } from "./rules";
 
+import FabricArt, { fabricSource } from "./FabricArt";
+
 type Props = {
   round: Round;
-  art: string;
   onMove: (i: number) => void;
   onUndo: () => void;
   leave: () => void;
@@ -26,7 +27,6 @@ type Props = {
 };
 export default function Board({
   round,
-  art,
   onMove,
   onUndo,
   leave,
@@ -99,11 +99,8 @@ export default function Board({
   const first =
     round.piece === "kite" && round.mode === "classic" && !round.history.length;
   return (
-    <section className="qw-inner qw-play">
+    <section className="qw-inner qw-play" data-size={n} data-mode={round.mode}>
       <div className="qw-crumb">
-        <button onClick={leave} className="qw-link">
-          ← 收起绷框
-        </button>
         <span>{timed ? "同局计时" : thread ? "针路关" : "经典拼图"}</span>
       </div>
       <div className="qw-section-title">
@@ -125,7 +122,11 @@ export default function Board({
             tabIndex={0}
             aria-label={piece.title + "拼图，方向键可朝对应方向移动布片"}
             onKeyDown={arrows}
-            style={{ "--qw-size": n } as CSSProperties}
+            style={{
+              "--qw-size": n,
+              "--qw-art": `url("${fabricSource(piece)}")`,
+              "--qw-mobile-art": `url("${fabricSource(piece, true)}")`,
+            } as CSSProperties}
           >
             {board
               .filter(Boolean)
@@ -149,7 +150,6 @@ export default function Board({
                     style={
                       {
                         transform: `translate(${100 * c}%,${100 * r}%)`,
-                        "--qw-art": `url("${art}")`,
                         "--qw-pos": `${(100 * sx) / (n - 1)}% ${(100 * sy) / (n - 1)}%`,
                       } as CSSProperties
                     }
@@ -204,10 +204,10 @@ export default function Board({
                 </span>
               ))}
             {preview && (
-              <img
+              <FabricArt
                 className="qw-preview"
                 alt={piece.title + "完整图样"}
-                src={art}
+                piece={piece}
               />
             )}
           </div>
@@ -252,7 +252,8 @@ export default function Board({
           )}
           <div className="qw-play-controls">
             <button
-              className="qw-secondary"
+              className="qw-secondary qw-control-original"
+              aria-label="按住看原图"
               onPointerDown={(e) => {
                 setPreview(true);
                 e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -268,14 +269,21 @@ export default function Board({
               onKeyUp={() => setPreview(false)}
               onBlur={() => setPreview(false)}
             >
-              按住看原图
+              <span className="qw-desktop-label">按住看原图</span>
+              <span className="qw-mobile-label">看原图</span>
             </button>
             <button
-              className="qw-secondary"
+              className="qw-secondary qw-control-undo"
+              aria-label="撤回一步"
               onClick={onUndo}
               disabled={!round.history.length}
             >
-              ↶ 撤回一步
+              <span className="qw-desktop-label">↶ 撤回一步</span>
+              <span className="qw-mobile-label">撤回</span>
+            </button>
+            <button className="qw-secondary qw-control-exit" onClick={leave} aria-label="离开棋盘，收起绷框">
+              <span className="qw-desktop-label">← 收起绷框</span>
+              <span className="qw-mobile-label">离开</span>
             </button>
           </div>
           <p className="qw-hint">轻点或滑动布块，也可在棋盘按方向键。</p>

@@ -1,7 +1,8 @@
 import { useRef, useState, type KeyboardEvent } from "react";
 import { playCue } from "../../shared/audio";
 import Badge from "./Badge";
-import { COLS, ROWS, groups, solvedLabel, type Save } from "./rules";
+import FabricArt from "./FabricArt";
+import { COLS, PIECES, ROWS, groups, solvedLabel, type Save } from "./rules";
 
 type Props = {
   loom: Save["loom"];
@@ -47,9 +48,10 @@ export default function Loom({ loom, update, back, collect }: Props) {
   if (loom.finished)
     return (
       <section className="qw-inner qw-reward">
-        <div className="qw-reward-art">
-          <Badge />
-        </div>
+        <div className="qw-reward-art"><Badge /></div>
+        <figure className="qw-reward-kite">
+          <FabricArt piece={PIECES[0]} alt="即将装饰的风筝作品" />
+        </figure>
         <div>
           <p className="qw-eyebrow">风起时 · 布标完成</p>
           <h2>绣好了！</h2>
@@ -80,7 +82,7 @@ export default function Loom({ loom, update, back, collect }: Props) {
       <div className="qw-section-title">
         <div>
           <p className="qw-eyebrow">风起时 · 工坊布标</p>
-          <h2>绣一朵郁金香</h2>
+          <h2><span className="qw-desktop-label">绣一朵郁金香</span><span className="qw-mobile-label">郁金香布标</span></h2>
         </div>
       </div>
       <div className="qw-lab">
@@ -142,16 +144,16 @@ export default function Loom({ loom, update, back, collect }: Props) {
           <h3>读数落针</h3>
           <p>数字表示这一行或一列连续的针数。多段针脚之间，至少留出一格。</p>
           <div className="qw-segment" aria-label="选择工具">
-            <button aria-pressed={tool === 1} onClick={() => setTool(1)}>
+            <button className="qw-tool-stitch" aria-pressed={tool === 1} onClick={() => setTool(1)}>
               缝线
             </button>
-            <button aria-pressed={tool === 2} onClick={() => setTool(2)}>
+            <button className="qw-tool-cross" aria-pressed={tool === 2} onClick={() => setTool(2)}>
               标空
             </button>
           </div>
           <p className="qw-hint">从线索为 5 的行开始。再次点同一格可拆线。</p>
           <button
-            className="qw-secondary"
+            className="qw-secondary qw-control-undo"
             disabled={!loom.history.length}
             onClick={() => {
               if (!loom.history.length) return;

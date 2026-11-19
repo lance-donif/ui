@@ -22,6 +22,8 @@ https://ui-sdk.dev/docs/react/components
 
 手机设计复核从两本 PDF 裁取对应的手机画面。截图和测量在 `test-results/design-review/`，工作流会保留对照图与失败轨迹。美术与命中区域一起改时，按画面中的真实物件选择独立测试坐标。小熊回归会检查缝针前后的像素，确认五针落在右臂缝口。
 
+本轮十个状态的[设计、旧版与实玩对照](designs/移动端设计对照.webp)可供下个会话复核。复验修订过的玩法时，在规划表里分别记录浏览器结果和首次玩家的操作。
+
 ## 使用 UI SDK
 
 使用 UI SDK 前，先遵循已安装的 `ui-sdk` 技能，并阅读 `node_modules/@ui-sdk/react/docs/llms.txt`。

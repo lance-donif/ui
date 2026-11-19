@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { playCue } from '../../shared/audio';
 import { readGameSave, writeGameSave } from '../../shared/storage';
 import { art, scenery } from './art';
 import Board from './Board';
@@ -71,7 +72,14 @@ export default function PondGame() {
   }
   function move(cell: number) {
     const next = jump(level, position, cell);
-    if (next === position || overlay || result !== 'playing') return;
+    if (next === position || page !== 'play' || overlay || result !== 'playing') return;
+    const landing = outcome(level, next);
+    if (landing === 'win') playCue('finish');
+    else if (landing !== 'playing') playCue('fail');
+    else if (next.key !== position.key) playCue('unlock');
+    else if (next.flower !== position.flower) playCue('flower');
+    else if (next.sunk.length > position.sunk.length) playCue('crack');
+    else playCue('hop');
     if (next.key !== position.key) tell('拿到钥匙，旗点的木闸打开了。');
     else if (next.flower !== position.flower) tell('带上莲花到旗点，就能收下花章。');
     else if (level.cracks?.includes(cell)) tell('跳离这片裂叶后，它会沉入水中。');
@@ -93,6 +101,8 @@ export default function PondGame() {
     });
   }
   function undo() {
+    if (!moves.length) return;
+    playCue('undo');
     tell('');
     set(s => {
       if (!s.moves.length) return s;

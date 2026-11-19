@@ -3,7 +3,7 @@ import counterIcon from "../../shared/nav-art/counter.webp";
 import workbenchIcon from "../../shared/nav-art/workbench.webp";
 import manualIcon from "../../shared/nav-art/manual.webp";
 import repairMark from "../../shared/nav-art/repair-brand.webp";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type TouchEvent } from "react";
 import { playCue, setDiagnosticQuiet } from "../../shared/audio";
 import { readGameSave, writeGameSave } from "../../shared/storage";
 import Workbench, { asset } from "./Workbench";
@@ -146,6 +146,7 @@ export default function ToyRepair() {
   );
   const [assist, setAssist] = useState(false);
   const [showStitchHint, setShowStitchHint] = useState(false);
+  const benchTap = useRef<{ button: HTMLButtonElement; id: number; x: number; y: number } | null>(null);
   const [choosingOrder, setChoosingOrder] = useState(false);
   const [tool, setTool] = useState<Tool>("hand");
   const [message, setMessage] = useState("");
@@ -182,6 +183,24 @@ export default function ToyRepair() {
   function pickTool(value: Tool) {
     if (!listening && value !== tool) playCue("tool");
     setTool(value);
+  }
+  function startBenchTap(event: TouchEvent) {
+    const finger = event.touches[0];
+    const button = event.target instanceof Element ? event.target.closest("button") : null;
+    benchTap.current = event.touches.length === 1 && button && !button.disabled
+      ? { button, id: finger.identifier, x: finger.clientX, y: finger.clientY } : null;
+  }
+  function finishBenchTap(event: TouchEvent) {
+    const tap = benchTap.current;
+    benchTap.current = null;
+    const finger = event.changedTouches[0];
+    if (!tap || !event.cancelable || event.touches.length || tap.id !== finger.identifier) return;
+    if (Math.hypot(finger.clientX - tap.x, finger.clientY - tap.y) > 8) return;
+    const target = document.elementFromPoint(finger.clientX, finger.clientY);
+    if (!tap.button.contains(target) || tap.button.disabled) return;
+    event.preventDefault();
+    tap.button.focus({ preventScroll: true });
+    tap.button.click();
   }
   function changeJob(next: Job) {
     setSave((s) => ({
@@ -506,7 +525,9 @@ export default function ToyRepair() {
             ← 回到柜台
           </button>
         </div>
-        <div className="tr-bench-layout" data-toy={kind} data-phase={job.phase} data-operating={Boolean(action)} data-stitching={stitching} data-stitch-hint={showStitchHint}>
+        <div className="tr-bench-layout" data-toy={kind} data-phase={job.phase} data-operating={Boolean(action)}
+          data-stitching={stitching} data-stitch-hint={showStitchHint}
+          onTouchStart={startBenchTap} onTouchEnd={finishBenchTap} onTouchCancel={() => { benchTap.current = null; }}>
           <Workbench
             key={job.serial}
             job={job}

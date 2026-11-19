@@ -131,6 +131,7 @@
   .tr-bench-top .tr-kicker { display: none; }
   .tr-game .tr-bench-top h1 { color: var(--toy-ink); font-size: inherit; line-height: inherit; }
   .tr-game .tr-bench-top h1 .tr-mobile { display: inline; }
+  .tr-bench-top .tr-delivered-name { display: none; }
   .tr-game .tr-bench-top .tr-backlink { flex: none; width: 32px; height: 32px; min-height: 0; margin: 0; padding: 0; border-radius: 50%; background: #cde7f3; font-size: 0; }
   .tr-bench-top .tr-backlink::before { content: "‹"; font-size: 30px; line-height: .8; }
   .tr-workunit { position: relative; gap: 0; padding: 0; border: 0; border-radius: 0; background: none; }
@@ -208,10 +209,15 @@
   .tr-bench-layout[data-phase="pass"] > .tr-workunit,
   .tr-bench-layout[data-phase="pass"] > .tr-delivery-art { grid-area: 1 / 1; }
   .tr-game .tr-delivery-art {
-    display: grid; place-items: center; z-index: 1; align-self: stretch;
+    display: grid; place-items: center; position: relative; z-index: 1; align-self: stretch;
     margin: 0; border-radius: 18px; background: var(--toy-paper); overflow: hidden;
     animation: tr-delivery-appear .24s ease-out .95s both;
   }
+  .tr-delivery-art strong {
+    position: absolute; inset-block-start: 5%; z-index: 1; border-radius: 20px;
+    padding: 4px 13px; background: #fdebbf; color: #244359; font-size: clamp(16px, 4.8vw, 21px);
+  }
+  [data-toy="bear"] .tr-delivery-art img { transform: translateY(5%); }
   .tr-delivery-art img { display: block; width: 80%; height: clamp(180px, 35svh, 330px); object-fit: contain; }
   [data-toy="car"] .tr-delivery-art img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
   .tr-bench-layout[data-phase="pass"] .tr-taskcard h2 { display: inline-flex; align-items: center; gap: 8px; color: #365c31; }

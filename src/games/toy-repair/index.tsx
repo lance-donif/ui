@@ -1,3 +1,8 @@
+import { ArcadeHeader } from "../../shared/ArcadeHeader";
+import counterIcon from "../../shared/nav-art/counter.webp";
+import workbenchIcon from "../../shared/nav-art/workbench.webp";
+import manualIcon from "../../shared/nav-art/manual.webp";
+import repairMark from "../../shared/nav-art/repair-brand.webp";
 import { useEffect, useRef, useState } from "react";
 import { playCue, setDiagnosticQuiet } from "../../shared/audio";
 import { readGameSave, writeGameSave } from "../../shared/storage";
@@ -152,6 +157,7 @@ export default function ToyRepair() {
   function setTest(value: Test | null) {
     if (job) changeJob({ ...job, testing: value, savedAngle: 0 });
   }
+  useEffect(() => { document.documentElement.scrollTop = 0; }, [tab]);
   useEffect(() => {
     if (written.current !== save) {
       writeGameSave("toy-repair", save, Object.keys(save.active).length > 0);
@@ -683,35 +689,30 @@ export default function ToyRepair() {
   }
   return (
     <main className="tr-game">
-      <header className="tr-mast">
-        <a className="tr-home" href="#/" aria-label="返回游戏大厅">
-          ← 大厅
-        </a>
-        <span className="tr-wordmark">
-          <img src={asset("gear")} alt="" />
-          玩具修理所
+      <ArcadeHeader>
+        <span className="arcade-game-brand">
+          <img src={repairMark} alt="" /> 玩具修理所
         </span>
-      </header>
+      </ArcadeHeader>
       <div className="tr-wrap">
-        {tab !== "bench" && (
-          <nav className="tr-tabs" aria-label="修理所">
-            {(["counter", "bench", "book"] as Tab[]).map((t, i) => (
-              <button
-                key={t}
-                aria-current={tab === t ? "page" : undefined}
-                onClick={() => nav(t)}
-              >
-                {["委托柜台", "维修室", "维修手册"][i]}
-              </button>
-            ))}
-          </nav>
-        )}
         {tab === "counter"
           ? renderCounter()
           : tab === "bench"
             ? renderBench()
             : renderBook()}
       </div>
+      <nav className={"arcade-dock tr-tabs" + (tab === "bench" ? " tr-work-dock" : "")} aria-label="修理所">
+        {([
+          ["counter", "委托柜台", "柜台", counterIcon],
+          ["bench", "维修室", "维修室", workbenchIcon],
+          ["book", "维修手册", "手册", manualIcon],
+        ] as const).map(([destination, name, label, icon]) => (
+          <button key={destination} aria-label={name} aria-current={tab === destination ? "page" : undefined}
+            onClick={() => { if (tab !== destination) nav(destination); }}>
+            <img src={icon} alt="" /><span>{label}</span>
+          </button>
+        ))}
+      </nav>
     </main>
   );
 }

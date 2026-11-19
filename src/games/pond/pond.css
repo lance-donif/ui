@@ -1,4 +1,5 @@
 .pond-app {
+  --nav-paper: #e5f2ed; --nav-rule: #b8d3d4;
   --ink: #183f50; --sea: #126881; --deep: #0a586d; --cream: #fffaf0; --rim: #b8d3d4;
   color: var(--ink); width: 100%; min-height: 100svh; isolation: isolate;
   font-family: "Nunito Variable","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
@@ -17,14 +18,10 @@
 .pond-app h2 {font-size:clamp(1.3rem,2.5vw,1.85rem);line-height:1.25;letter-spacing:-.045em}
 .pond-app p,.pond-app small {line-height:1.6}
 .pond-app small {font-size:.8rem}
+.pond-app:not(.pond-playing) .pond-wrap {padding-bottom:calc(var(--arcade-dock-height) + var(--arcade-dock-gap) + 18px)}
 .pond-wrap {width:min(1090px,100%);margin:0 auto;padding:23px clamp(18px,4.5vw,52px) 26px}
-.pond-header {display:flex;align-items:center;justify-content:space-between;margin:0 0 21px;min-height:42px}
-.pond-brand {display:inline-flex;align-items:center;gap:8px;font-size:1.15rem}
-.pond-brand img {width:35px;height:35px;object-fit:contain;transform:rotate(5deg)}
-.pond-back,.pond-text-button,.pond-dialog-links button {background:none;border:0;color:var(--sea);font-weight:800;text-decoration:none}
-.pond-back {display:inline-flex;align-items:center;gap:8px;font-size:1.6rem;line-height:1;padding:8px 12px 8px 6px}
-.pond-back span {font-size:.95rem;letter-spacing:.04em}
-.pond-back:hover span,.pond-text-button:hover,.pond-dialog-links button:hover {text-decoration:underline;text-underline-offset:3px}
+.pond-text-button,.pond-dialog-links button {background:none;border:0;color:var(--sea);font-weight:800;text-decoration:none}
+.pond-text-button:hover,.pond-dialog-links button:hover {text-decoration:underline;text-underline-offset:3px}
 .pond-hero {position:relative;min-height:260px;overflow:hidden;border:5px solid #fffdf4;border-radius:28px;box-shadow:0 4px 0 #bfd5cc,0 17px 33px -23px #476263;display:flex;align-items:center;background:#bedfd4}
 .pond-hero-land {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:70% 60%}
 .pond-hero-paper {isolation:isolate;position:relative;margin:18px clamp(15px,3vw,30px);padding:20px clamp(20px,3.3vw,38px) 21px;border-radius:20px 26px 26px 15px;background:linear-gradient(120deg,#fffbea,#fffcf1ec);box-shadow:0 4px 0 #65877342;border:1px solid #ffffff;width:min(370px,60%)}
@@ -50,10 +47,6 @@
 .pond-card strong {font-size:clamp(1.1rem,2.3vw,1.42rem)}
 .pond-card small {color:#4e6d70;margin-top:3px}
 .pond-card-bottom>b {border-radius:50%;background:#dbede0;color:#427478;width:30px;height:30px;display:grid;place-items:center}
-.pond-dock {background:#197594;border:3px solid #fff9e8;box-shadow:0 3px 0 #a5c4bd;display:flex;justify-content:center;width:max-content;max-width:100%;margin:25px auto 0;padding:5px;border-radius:19px;gap:3px}
-.pond-dock button {display:flex;align-items:center;justify-content:center;gap:7px;padding:5px 12px;min-width:66px;min-height:38px;background:transparent;color:white;border:none;border-radius:12px;font-size:.92rem;font-weight:800}
-.pond-dock button[aria-current=page] {background:#d0ecdd;color:#164f5a}
-.pond-dock img {width:27px;height:27px;object-fit:contain}
 .pond-book-layout {display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.2fr);gap:clamp(17px,4vw,36px);background:#fffaf0e8;border:3px solid #fffdf5;border-radius:25px;padding:20px;box-shadow:0 4px 0 #c4d8cc}
 .pond-region-cover {display:flex;flex-direction:column;overflow:hidden;border-radius:16px;background:#deebd8}
 .pond-region-cover>img {width:100%;min-height:145px;flex:1;object-fit:cover}
@@ -86,7 +79,7 @@
 .pond-recent>div {flex:1}
 .pond-recent h2 {font-size:1.3rem;margin:4px 0}
 .pond-subhead {font-size:1.15rem!important;margin-bottom:12px!important}
-.pond-toast {position:fixed;z-index:4;bottom:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:94vw;border-radius:13px;padding:10px 18px;background:#194b59;color:white;box-shadow:0 2px 12px #18414f44;font-size:.95rem}
+.pond-toast {position:fixed;z-index:5;bottom:calc(var(--arcade-dock-height) + var(--arcade-dock-gap) + 10px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:94vw;border-radius:13px;padding:10px 18px;background:#194b59;color:white;box-shadow:0 2px 12px #18414f44;font-size:.95rem}
 .pond-toast button {border:0;background:none;color:#ffe9a5;font-weight:800}
 .pond-playing .pond-wrap {max-width:1040px}
 .pond-stage {margin:auto;max-width:735px}
@@ -124,16 +117,15 @@
 .pond-dialog-links button {padding:6px 2px}
 .pond-achievement {font-size:.88rem;border-radius:99px;background:#e8efd7;font-weight:750;padding:5px 13px;color:#406255}
 @media(max-width:680px){
- .pond-wrap{padding:12px 15px 16px}.pond-header{margin-bottom:12px}.pond-brand{font-size:1.04rem}.pond-brand img{width:29px;height:29px}
+ .pond-wrap{padding:12px 15px 16px}
  .pond-hero{min-height:205px;border-width:3px;border-radius:20px}.pond-hero-paper{margin:14px;width:60%;padding:13px 15px;border-radius:14px}.pond-hero-paper p{font-size:.79rem}.pond-kicker{font-size:.7rem;gap:5px}.pond-hero-paper h1{font-size:clamp(1.7rem,6vw,2.25rem)}.pond-hero .pond-primary{margin-top:12px;min-height:37px;padding:6px 14px}
  .pond-section{margin-top:20px}.pond-section-head{margin-bottom:10px}.pond-cards{grid-template-columns:1fr;gap:9px}.pond-card{display:grid;grid-template-columns:37% 1fr;border-radius:15px;gap:0}.pond-card>img{height:76px}.pond-card-bottom{padding:8px 12px}
- .pond-dock{margin-top:19px;gap:1px;border-radius:16px}.pond-dock button{flex-direction:column;gap:0;min-width:61px;font-size:.78rem;padding:2px 7px}.pond-dock img{width:24px;height:24px}
  .pond-book-layout{grid-template-columns:1fr;padding:12px;gap:9px}.pond-region-cover{display:grid;grid-template-columns:41% 1fr}.pond-region-cover>img{height:100%;min-height:97px}.pond-region-cover>div{padding:12px}.pond-region-cover h1{font-size:1.6rem}.pond-region-cover span{font-size:.8rem}
  .pond-row-main{padding:9px 10px;gap:9px}.pond-row-name small{font-size:.73rem}.pond-row-status{font-size:.8rem}.pond-library{padding:16px}.pond-recent{flex-wrap:wrap;gap:8px}.pond-recent .pond-primary{width:100%}.pond-empty p{font-size:.84rem}
  .pond-stage{padding-top:4px}.pond-stagebar{margin:0 5px 12px;min-height:61px;gap:8px}.pond-stagebar h1{font-size:1.4rem}.pond-board{width:100%;aspect-ratio:1.08}.pond-grid{inset:12% 8.8% 12%}.pond-steps{padding:5px 10px;font-size:.8rem;min-height:39px;border-radius:13px}.pond-steps b{font-size:1.35rem}.pond-pause{width:39px;height:39px;border-radius:13px}
 }
 @media(max-height:480px) and (orientation:landscape){
- .pond-playing .pond-wrap{padding-top:3px;padding-bottom:3px}.pond-playing .pond-header{margin:0;min-height:25px}.pond-stagebar{min-height:35px}.pond-stagebar p{display:none}.pond-board{width:min(100%,calc((100svh - 121px)*1.34));min-width:0;aspect-ratio:1.34}.pond-dialog-art{display:none}.pond-dialog{gap:5px;padding:10px 20px}
+ .pond-playing .pond-wrap{padding-top:3px;padding-bottom:3px}.pond-stagebar{min-height:35px}.pond-stagebar p{display:none}.pond-board{width:min(100%,calc((100svh - 121px)*1.34));min-width:0;aspect-ratio:1.34}.pond-dialog-art{display:none}.pond-dialog{gap:5px;padding:10px 20px}
 }
 @media(prefers-reduced-motion:reduce){.pond-app *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 

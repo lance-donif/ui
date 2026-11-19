@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { ArcadeHeader } from "../shared/ArcadeHeader";
 import { hasGameProgress, storageUnavailable, subscribeToSaves, type GameId } from "../shared/storage";
 import quilt from "./art/quilt.webp";
 import toy from "./art/toy-repair.webp";
@@ -13,18 +14,17 @@ export const catalog = [
 
 export function HallHeader({ resources }: { resources: boolean }) {
   return (
-    <header className="lobby-header">
-      <div className="lobby-width lobby-header-inner">
-        <a className="lobby-brand" href="#/" aria-label="口袋游乐室首页">
-          <span className="lobby-mark" aria-hidden="true"><i /><i /><i /><i /></span>
-          口袋游乐室
-        </a>
-        <nav aria-label="主导航">
-          <a href="#/" aria-current={!resources ? "page" : undefined}>游戏大厅</a>
-          <a href="#/resources" aria-current={resources ? "page" : undefined}>项目资源</a>
-        </nav>
-      </div>
-    </header>
+    <ArcadeHeader leading={
+      <a className="lobby-brand" href="#/" aria-label="口袋游乐室首页">
+        <span className="lobby-mark" aria-hidden="true"><i /><i /><i /><i /></span>
+        <span>口袋游乐室</span>
+      </a>
+    }>
+      <nav className="lobby-links" aria-label="主导航">
+        <a href="#/" aria-current={!resources ? "page" : undefined}>游戏大厅</a>
+        <a href="#/resources" aria-current={resources ? "page" : undefined}>项目资源</a>
+      </nav>
+    </ArcadeHeader>
   );
 }
 

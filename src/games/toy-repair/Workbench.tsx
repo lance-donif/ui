@@ -534,7 +534,7 @@ export default function Workbench({
                 aria-pressed={tool === t}
               >
                 <img src={asset(t)} alt="" />
-                {toolNames[t]}
+                <span>{toolNames[t]}</span>
               </button>
             ))}
           </div>

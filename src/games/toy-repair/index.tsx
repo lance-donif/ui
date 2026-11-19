@@ -35,6 +35,7 @@ import {
   type Tool,
 } from "./model";
 import "./styles.css";
+import "./mobile.css";
 
 const phases: Record<Phase, string> = {
   inspect: "检查",
@@ -144,6 +145,7 @@ export default function ToyRepair() {
     save.active[save.last] ? "bench" : "counter",
   );
   const [assist, setAssist] = useState(false);
+  const [choosingOrder, setChoosingOrder] = useState(false);
   const [tool, setTool] = useState<Tool>("hand");
   const [message, setMessage] = useState("");
   const [pref, setPref] = useState<Preference>("keep");
@@ -267,7 +269,11 @@ export default function ToyRepair() {
     const active = save.active[kind];
     const complete = save.history.some((h) => h.kind === kind);
     return (
-      <>
+      <div className="tr-counter-view" data-browsing={choosingOrder}>
+        <button className="tr-mobile tr-order-strip" type="button" aria-label={choosingOrder ? "返回当前委托" : "切换委托"}
+          aria-expanded={choosingOrder} aria-controls="tr-order-list" onClick={() => setChoosingOrder(!choosingOrder)}>
+          <span aria-hidden="true">‹</span>{choosingOrder ? "选择委托" : `#${toy.id} ${toy.name}`}
+        </button>
         <section className="tr-counter-hero" aria-label="委托详情">
           <div className="tr-counter-paper">
             <span className="tr-kicker">
@@ -277,6 +283,10 @@ export default function ToyRepair() {
             <h1>{toy.name}</h1>
             <blockquote>“{toy.quote}”</blockquote>
             <p className="tr-sign">—　{toy.customer}</p>
+            <details key={kind} className="tr-mobile tr-order-note">
+              <summary className="tr-symptom">{{ bear: "右臂开线", car: "上弦后停在原地", music: "上弦后没有音乐", wind: "送风后叶片不转" }[kind]}</summary>
+              <p>{toy.customer}说：“{toy.quote}”</p>
+            </details>
             {advanced(kind) && !active && (
               <div className="tr-preference" aria-label="顾客偏好">
                 <button
@@ -298,13 +308,14 @@ export default function ToyRepair() {
               <span>→</span>
             </button>
           </div>
-          <div className="tr-counter-stage">
+          <div className="tr-counter-stage" data-toy={kind}>
             <img
               className="tr-featured-toy"
               key={kind}
               src={asset(kind)}
               alt={toy.name}
             />
+            {kind === "bear" && <img className="tr-mobile tr-counter-loupe" src={asset("bear-loupe")} alt="右臂缝口与露出的棉絮" />}
             <span className="tr-desk-label">
               {active ? phases[active.phase] : "待维修"} · #{toy.id}
             </span>
@@ -314,7 +325,7 @@ export default function ToyRepair() {
           <h2>委托柜台</h2>
           <span>{kinds.length} 件玩具</span>
         </div>
-        <div className="tr-orders">
+        <div className="tr-orders" id="tr-order-list">
           {kinds.map((k) => (
             <button
               className={"tr-order " + (k === kind ? "tr-current" : "")}
@@ -323,6 +334,7 @@ export default function ToyRepair() {
               onClick={() => {
                 setKind(k);
                 setMessage("");
+                setChoosingOrder(false);
               }}
             >
               <span
@@ -341,7 +353,7 @@ export default function ToyRepair() {
             </button>
           ))}
         </div>
-      </>
+      </div>
     );
   }
   function renderBook() {
@@ -431,6 +443,7 @@ export default function ToyRepair() {
                   <small>#{toys[h.kind].id} · 已交付</small>
                   <b>{toys[h.kind].name}</b>
                   <em>{faultName(h)}</em>
+                  <span className="tr-mobile tr-approved">试修通过</span>
                 </span>
                 <strong>›</strong>
               </button>
@@ -488,13 +501,13 @@ export default function ToyRepair() {
         <div className="tr-bench-top">
           <div>
             <span className="tr-kicker">维修室　/　#{toy.id}</span>
-            <h1>{toy.name}</h1>
+            <h1><span className="tr-mobile">#{toy.id} </span>{toy.name}</h1>
           </div>
           <button className="tr-backlink" onClick={() => nav("counter")}>
             ← 回到柜台
           </button>
         </div>
-        <div className="tr-bench-layout">
+        <div className="tr-bench-layout" data-toy={kind} data-phase={job.phase} data-operating={Boolean(action)}>
           <Workbench
             key={boardKey}
             job={job}
@@ -507,6 +520,11 @@ export default function ToyRepair() {
             onProgress={(deg) => changeJob({ ...job, savedAngle: deg })}
             onMessage={setMessage}
           />
+          {job.phase === "pass" && (kind === "bear" || kind === "car") && (
+            <div className="tr-mobile tr-delivery-art">
+              <img src={asset(kind === "bear" ? "bear-done" : "car")} alt="修好的玩具" />
+            </div>
+          )}
           <section className="tr-taskcard">
             <div className="tr-phase">
               <i />

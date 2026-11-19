@@ -180,6 +180,7 @@ type Props = {
 export default function BearSeam({ job, action, contact, needleReady }: Props) {
   const source = useRef<HTMLImageElement>(null),
     batting = useRef<HTMLImageElement>(null),
+    needle = useRef<HTMLImageElement>(null),
     fabric = useRef<HTMLCanvasElement>(null),
     over = useRef<HTMLCanvasElement>(null);
   const [loaded, setLoaded] = useState(false);
@@ -248,11 +249,20 @@ export default function BearSeam({ job, action, contact, needleReady }: Props) {
     const ctx = over.current.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, fabricSize, fabricSize);
-    if (sewing && tip && contact) {
+    if (
+      sewing &&
+      tip &&
+      contact &&
+      needle.current &&
+      over.current.clientWidth
+    ) {
+      const needleWidth =
+        (needle.current.getBoundingClientRect().width * 100) /
+        over.current.clientWidth;
       thread(
         ctx,
         needleHole(sewn, sewn),
-        [tip[0] + 10.7, tip[1] - 13.0],
+        [tip[0] + (needleWidth * 185.5) / 225, tip[1] - needleWidth],
         9,
         0.62,
       );
@@ -318,6 +328,7 @@ export default function BearSeam({ job, action, contact, needleReady }: Props) {
       )}
       {tip && (
         <img
+          ref={needle}
           className="tr-bear-needle"
           src={needleUrl}
           alt=""

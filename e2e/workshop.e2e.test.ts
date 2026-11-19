@@ -70,7 +70,6 @@ test("在小熊实际右臂上进出五针，失手和撤回后仍能缝合交�
   await expect(page.locator(".tr-record-detail")).toContainText("右臂开线");
   await press(button(page, /全部记录/), info);
   await expect(button(page, /小熊玩偶/)).toBeVisible();
-  await captureDesign(page, info, "toy-book", { records: page.locator(".tr-records"), dock: page.locator(".tr-tabs") });
 });
 
 test("小车拆盖、夹齿轮、装回与上弦试跑", async ({ page }, info) => {
@@ -116,4 +115,60 @@ test("小车拆盖、夹齿轮、装回与上弦试跑", async ({ page }, info) 
   });
   await press(button(page, /交还玩具/), info);
   await expect(page.locator(".tr-record-detail")).toContainText("齿轮脱位");
+});
+
+test("用辅助操作交还小车和小熊，刷新后能从手册分别翻回两笔记录", async ({ page }, info) => {
+  await enterGame(page, "toy-repair", info);
+  const activate = (name: string | RegExp) => button(page, name).press("Enter");
+  const take = async (tool: string) => {
+    const control = button(page, tool);
+    if (await control.getAttribute("aria-pressed") !== "true") await control.press("Enter");
+  };
+  const place = async (tool: string, times = 1) => {
+    await take(tool);
+    for (let i = 0; i < times; i++) {
+      await activate("握住起点");
+      await activate("对准并松手");
+    }
+  };
+  const turn = async (tool: string, direction: "顺转" | "逆转", times: number) => {
+    await take(tool);
+    for (let i = 0; i < times; i++) await activate(new RegExp(direction + " 90°"));
+  };
+  const pick = async (toy: string) => {
+    if (info.project.use.hasTouch) await activate("切换委托");
+    await activate(new RegExp(toy));
+    await activate(/接单并进入维修室/);
+    const assist = button(page, "使用点按或键盘操作");
+    if (await assist.isVisible()) await assist.press("Enter");
+  };
+  await pick("发条小车");
+  await turn("发条钥匙", "顺转", 1);
+  await turn("螺丝刀", "逆转", 4);
+  await place("手套");
+  await place("镊子");
+  await turn("手套", "顺转", 1);
+  await place("手套");
+  await turn("螺丝刀", "顺转", 4);
+  await turn("发条钥匙", "顺转", 4);
+  await activate(/交还玩具/);
+  await activate("委托柜台");
+  await pick("小熊玩偶");
+  await place("手套");
+  await place("镊子");
+  await place("针线", 5);
+  await place("镊子");
+  await place("剪刀");
+  await place("手套");
+  await activate(/交还玩具/);
+  await page.reload();
+  await activate("维修手册");
+  const records = page.locator(".tr-records");
+  await expect(records.getByRole("button")).toHaveCount(2);
+  await captureDesign(page, info, "toy-book", { records, dock: page.locator(".tr-tabs") });
+  for (const [toy, symptom] of [["小熊玩偶", "右臂开线"], ["发条小车", "齿轮脱位"]]) {
+    await activate(new RegExp(toy));
+    await expect(page.locator(".tr-record-detail")).toContainText(symptom);
+    await activate(/全部记录/);
+  }
 });

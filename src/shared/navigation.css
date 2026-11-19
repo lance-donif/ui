@@ -134,6 +134,14 @@ span.arcade-game-brand > .qw-patch { width: 30px; height: 30px; flex: none; obje
 @media (pointer: coarse) { html { scrollbar-gutter: auto; } }
 
 @media (max-width: 640px) {
+  .qw .arcade-game-brand {
+    gap: 7px;
+    font-size: clamp(21px, 6.2vw, 27px);
+    font-weight: 900;
+  }
+  .qw .arcade-game-brand > .qw-patch { width: 31px; height: 31px; }
+  .arcade-surface .arcade-dock button { font-size: 15px; }
+  .arcade-dock img { inline-size: 30px; block-size: 27px; }
   .tr-game .arcade-mast {
     --nav-rule: #aed9ed;
     background-color: #c4e8fc;
@@ -157,7 +165,7 @@ span.arcade-game-brand > .qw-patch { width: 30px; height: 30px; flex: none; obje
   .tr-game .arcade-game-brand {
     gap: 4px;
     color: #173453;
-    font-size: clamp(18px, 5.1vw, 22px);
+    font-size: clamp(21px, 6.2vw, 27px);
     font-weight: 900;
     letter-spacing: -.02em;
     -webkit-text-stroke: 3px #fffdf6;

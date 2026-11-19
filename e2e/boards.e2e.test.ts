@@ -28,12 +28,12 @@ test("拼布从三步风筝到亲手装上数织布标", async ({ page }, info) 
   await press(button(page, /查看作品/), info);
   await captureDesign(page, info, "quilt-work", { art: page.locator(".qw-zoom img") });
   await press(button(page, /制作布标/), info);
-  await captureDesign(page, info, "quilt-loom", {
-    board: page.locator(".qw-crossword"), needle: button(page, "缝线"), undo: button(page, /撤回一针/),
-  });
   const rows = [[1, 3, 5], [1, 2, 3, 4, 5], [2, 3, 4], [3], [3]];
-  for (const [row, columns] of rows.entries()) {
-    for (const col of columns) await press(button(page, new RegExp(`^第${row+1}行第${col}列`)), info);
+  for (const row of [1, 0, 2, 3, 4]) {
+    for (const col of rows[row]) await press(button(page, new RegExp(`^第${row+1}行第${col}列`)), info);
+    if (row === 1) await captureDesign(page, info, "quilt-loom", {
+      board: page.locator(".qw-crossword"), needle: button(page, "缝线"), undo: button(page, /撤回一针/),
+    });
   }
   await press(button(page, "装上布标"), info);
   await expect(page.getByRole("img", { name: "郁金香布标" })).toBeVisible();

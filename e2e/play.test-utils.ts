@@ -67,13 +67,18 @@ export async function captureDesign(page: Page, testInfo: TestInfo, name: string
     await document.fonts.ready;
     await Promise.all(Array.from(document.images, image => image.decode()));
     await new Promise(requestAnimationFrame);
+    const transitions = document.getAnimations().filter(animation => {
+      const timing = animation.effect?.getComputedTiming();
+      return animation.playState === "running" && timing && Number.isFinite(timing.endTime);
+    });
+    await Promise.allSettled(transitions.map(animation => animation.finished));
   });
   const viewport = page.viewportSize();
   const elements = Object.fromEntries(await Promise.all(
     Object.entries(landmarks).map(async ([label, locator]) => [label, await box(locator)]),
   ));
   const image = testInfo.outputPath(`design-${name}.png`);
-  await page.screenshot({ path: image });
+  await page.screenshot({ path: image, animations: "disabled" });
   await writeFile(testInfo.outputPath(`design-${name}.json`), JSON.stringify({ viewport, elements }));
   await testInfo.attach(name, { path: image, contentType: "image/png" });
 }

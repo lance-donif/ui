@@ -1,3 +1,12 @@
+import {
+  armGrip,
+  armPulled,
+  closedHoles,
+  cottonMouth,
+  cottonTip,
+  needleHole,
+  tailEnd,
+} from "./bearSeamGeometry";
 export const kinds = ["bear", "car", "music", "wind"] as const;
 export type Kind = (typeof kinds)[number];
 export type Fault = 0 | 1;
@@ -340,14 +349,6 @@ export const screws: Point[] = [
   [67, 61],
   [33, 61],
 ];
-export const holes: Point[] = [
-  [45, 32],
-  [53, 39],
-  [47, 46],
-  [56, 53],
-  [49, 60],
-  [58, 67],
-];
 export function repairActions(job: Job) {
   if (job.kind === "bear")
     return [
@@ -356,18 +357,18 @@ export function repairActions(job: Job) {
         "把棉絮藏回缝口",
         "捏起棉絮，拖进标出的裂口再松手。",
         "tweezers",
-        [66, 46],
-        [52, 47],
+        cottonTip,
+        cottonMouth,
         "cotton",
       ),
       {
         ...drag(
           "stitch",
           "穿过对侧针孔",
-          "从金色针孔起针，拖到蓝圈针孔再松开。",
+          "从亮起的针孔起针，跨过裂口，在对侧下一孔松手。",
           "needle",
-          holes[0],
-          holes[1],
+          needleHole(0, 0),
+          needleHole(1, 0),
         ),
         repeats: 5,
       },
@@ -377,8 +378,8 @@ export function repairActions(job: Job) {
           "收紧线尾",
           "沿线拉至蓝圈中心。力度不足会使末针松动。",
           "tweezers",
-          holes[5],
-          [77, 58],
+          closedHoles[5],
+          tailEnd,
         ),
         precision: true,
       },
@@ -387,8 +388,8 @@ export function repairActions(job: Job) {
         "剪去余线",
         "将剪刃从线尾滑到收口标记。",
         "scissors",
-        [77, 58],
-        holes[5],
+        tailEnd,
+        closedHoles[5],
       ),
     ];
   if (job.kind === "car")
@@ -618,8 +619,8 @@ export function currentAction(job: Job, test: Test | null) {
           "轻拉小熊的右臂",
           "按住右臂的金色圆点，向外轻拉。",
           "hand",
-          [57, 44],
-          [77, 46],
+          armGrip,
+          armPulled,
         )
       : turn(
           "inspect-car",
@@ -666,8 +667,8 @@ export function currentAction(job: Job, test: Test | null) {
           "轻拉试修",
           "再轻拉一次右臂，看看针脚是否结实。",
           "hand",
-          [57, 44],
-          [77, 46],
+          armGrip,
+          armPulled,
         )
       : job.kind === "wind"
         ? drag(
@@ -690,7 +691,11 @@ export function currentAction(job: Job, test: Test | null) {
   const action = repairActions(job)[job.step];
   if (!action) return null;
   if (action.id === "stitch")
-    return { ...action, from: holes[job.repeat], to: holes[job.repeat + 1] };
+    return {
+      ...action,
+      from: needleHole(job.repeat, job.repeat),
+      to: needleHole(job.repeat + 1, job.repeat),
+    };
   if (action.id === "unscrew" || action.id === "fasten")
     return { ...action, from: screws[job.repeat], to: screws[job.repeat] };
   return action;

@@ -1,0 +1,55 @@
+.tr-bear-photo,
+.tr-bear-fabric,
+.tr-bear-thread {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.tr-bear-cotton,
+.tr-bear-needle {
+  position: absolute;
+  pointer-events: none;
+  max-width: none;
+}
+.tr-bear-cotton {
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(1px 2px 1px #67452f73);
+}
+.tr-bear-needle {
+  width: 13%;
+  transform: translate(-1.35%, -98.9%);
+  filter: drop-shadow(1px 1px 1px #4b362a88);
+  z-index: 5;
+}
+.tr-sewing .tr-origin,
+.tr-sewing .tr-target {
+  width: 5.3%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+.tr-sewing .tr-origin {
+  border: 2px solid #ffdc82;
+  box-shadow: 0 0 0 1px #725128;
+  z-index: 3;
+}
+.tr-sewing .tr-origin:after,
+.tr-sewing .tr-target b {
+  display: none;
+}
+.tr-sewing .tr-target {
+  border: 2px dashed #bce7e7;
+  outline: 1px solid #426563;
+  z-index: 3;
+}
+.tr-held-tool.tr-bear-tweezers {
+  transform: translate(-6%, -94%);
+}
+.tr-held-tool.tr-bear-scissors {
+  transform: translate(-6%, -88%);
+}

@@ -1,3 +1,4 @@
+import { gapAt, hitsHole, needleHole, seamCenter } from "./bearSeamGeometry";
 import { describe, expect, it } from "vitest";
 import {
   choosePlan,
@@ -6,7 +7,6 @@ import {
   deliver,
   diagnose,
   freshSave,
-  holes,
   newJob,
   normalizeSave,
   observation,
@@ -33,7 +33,10 @@ describe("玩具的实际工序", () => {
     job = completeAction(job, true, null);
     for (let i = 0; i < 5; i++) {
       const action = currentAction(job, null);
-      expect([action?.from, action?.to]).toEqual([holes[i], holes[i + 1]]);
+      expect([action?.from, action?.to]).toEqual([
+        needleHole(i, i),
+        needleHole(i + 1, i),
+      ]);
       job = completeAction(job, true, null);
     }
     job = repairAll(job, 2);
@@ -158,5 +161,42 @@ describe("继续与局部坏档", () => {
       active: { music: existing },
     } as unknown as StudioSave);
     expect(save.active.music?.phase).toBe("tests");
+  });
+});
+
+describe("右臂接缝的实际触点", () => {
+  const measured: [number, number][] = [
+    [293, 207],
+    [330, 251],
+    [309, 296],
+    [344, 344],
+    [317, 391],
+    [352, 436],
+  ];
+  const original = (p: [number, number]): [number, number] => [
+    (p[0] * 100) / 622,
+    (p[1] * 100) / 622,
+  ];
+  it.each([270, 344, 510])(
+    "在 %ipx 工作图上只接受正确布边的最近针孔",
+    (width) => {
+      for (let i = 0; i < 5; i++) {
+        expect(hitsHole(original(measured[i]), i, i, width)).toBe(true);
+        expect(hitsHole(original(measured[i + 1]), i + 1, i, width)).toBe(true);
+        expect(hitsHole(original(measured[i + 1]), i, i, width)).toBe(false);
+        const y = original(measured[i + 1])[1];
+        expect(hitsHole([seamCenter(y), y], i + 1, i, width)).toBe(false);
+      }
+    },
+  );
+  it("每一针合拢自己的局部布边，松动的末针只重新张开尾端", () => {
+    for (let i = 0; i < 5; i++) {
+      const y = (original(measured[i])[1] + original(measured[i + 1])[1]) / 2;
+      expect(gapAt(y, i)).toBeGreaterThan(0);
+      expect(gapAt(y, i + 1)).toBe(0);
+      expect(needleHole(i + 1, i + 1)).toEqual(original(measured[i + 1]));
+    }
+    expect(gapAt(44, 5, 1, true)).toBe(0);
+    expect(gapAt(68, 5, 1, true)).toBeGreaterThan(0);
   });
 });

@@ -1,4 +1,6 @@
 .qw {
+  --nav-paper: #f7f4e9;
+  --nav-rule: #c5cabb;
   --q-ink: #193e50;
   --q-teal: #216558;
   --q-muted: #52686b;
@@ -25,7 +27,7 @@
 .qw .qw-shell {
   width: min(1140px, 100%);
   margin: auto;
-  padding: 0 clamp(16px, 3.5vw, 42px) 42px;
+  padding: 16px clamp(16px, 3.5vw, 42px) 42px;
 }
 .qw button,
 .qw a {
@@ -63,10 +65,6 @@
 }
 .qw h1,
 .qw h2,
-.qw .qw-brand {
-  font-family: "Noto Serif CJK SC", "Songti SC", "STSong", serif;
-  font-weight: 900;
-}
 .qw h1 {
   font-size: clamp(34px, 4.2vw, 64px);
 }
@@ -78,21 +76,6 @@
 }
 .qw p {
   color: var(--q-muted);
-}
-.qw .qw-titlebar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  min-height: 73px;
-  border-bottom: 1px solid var(--q-line);
-}
-.qw .qw-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 24px;
-  letter-spacing: 0.035em;
 }
 .qw .qw-patch {
   display: grid;
@@ -121,7 +104,6 @@
 .qw-patch i:nth-child(4) {
   background: #365970;
 }
-.qw .qw-home,
 .qw .qw-link {
   background: transparent;
   border: 0;
@@ -131,37 +113,10 @@
   font-weight: 750;
   text-decoration: none;
 }
-.qw .qw-home:hover,
 .qw .qw-link:hover {
   color: #983c24;
   text-decoration: underline;
   text-underline-offset: 4px;
-}
-.qw .qw-tabs {
-  display: flex;
-  gap: 28px;
-  align-items: center;
-  padding: 5px 0 12px;
-}
-.qw-tabs button {
-  position: relative;
-  padding: 10px 1px 8px;
-  border: 0;
-  background: transparent;
-  font-weight: 750;
-  font-size: 14px;
-  color: var(--q-muted);
-}
-.qw-tabs button[aria-current="page"] {
-  color: var(--q-ink);
-}
-.qw-tabs button[aria-current="page"]:after {
-  content: "";
-  position: absolute;
-  inset: auto 0 2px;
-  border-bottom: 3px solid #ca7349;
-  border-radius: 3px;
-  transform: rotate(-2deg);
 }
 .qw-hero {
   isolation: isolate;
@@ -795,12 +750,6 @@
   .qw .qw-shell {
     padding-bottom: 25px;
   }
-  .qw .qw-titlebar {
-    min-height: 60px;
-  }
-  .qw .qw-brand {
-    font-size: 21px;
-  }
   .qw .qw-hero {
     min-height: 255px;
     background-position: 56% 50%;
@@ -812,10 +761,6 @@
   .qw .qw-hero-content > p:not(.qw-eyebrow) {
     max-width: 13em;
     font-size: 13px;
-  }
-  .qw .qw-tabs {
-    gap: 24px;
-    padding: 4px 0 9px;
   }
   .qw .qw-lab {
     grid-template-columns: 1fr;
@@ -1008,4 +953,8 @@
     opacity: 1;
     scale: 1;
   }
+}
+
+.qw:has(.arcade-dock) .qw-shell {
+  padding-bottom: calc(var(--arcade-dock-height) + var(--arcade-dock-gap) + 18px);
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { hasGameProgress, readGameSave, writeGameSave } from "../../shared/storage";
+import { ArcadeHeader } from "../../shared/ArcadeHeader";
 import Board from "./Board";
 import Loom from "./Loom";
 import Badge from "./Badge";
@@ -22,6 +23,8 @@ import {
   type Round,
   type Save,
 } from "./rules";
+import patternsIcon from "../../shared/nav-art/patterns.webp";
+import albumIcon from "../../shared/nav-art/album.webp";
 import hero from "./assets/hero.webp";
 import kite from "./assets/kite.webp";
 import sail from "./assets/sail.webp";
@@ -237,45 +240,19 @@ export default function Quilt() {
     );
   }
   const currentTab = tabs.some(([s]) => s === view) ? view : source;
-  const workTitle = (
-    <div className="qw-titlebar">
-      <div className="qw-brand">
-        <Patch />
-        <span>拼布工坊</span>
-      </div>
-      <a
-        href="#/"
-        className="qw-home"
-        onClick={(e) => {
-          if (view === "board" && mode === "timed" && round?.started != null) {
-            e.preventDefault();
-            setConfirm("hall");
-          }
-        }}
-      >
-        ← 游戏大厅
-      </a>
-    </div>
-  );
   const choices: Mode[] =
     piece.id === "leaves" ? ["thread"] : ["classic", "thread"];
   return (
     <main className="qw">
+      <ArcadeHeader onHomeClick={(event) => {
+        if (view === "board" && mode === "timed" && round?.started != null) {
+          event.preventDefault();
+          setConfirm("hall");
+        }
+      }}>
+        <span className="arcade-game-brand"><Patch /> 拼布工坊</span>
+      </ArcadeHeader>
       <div className="qw-shell">
-        {workTitle}
-        {["library", "show", "album"].includes(view) && (
-          <nav className="qw-tabs" aria-label="工坊导航">
-            {tabs.map(([k, t]) => (
-              <button
-                key={k}
-                aria-current={currentTab === k ? "page" : undefined}
-                onClick={() => section(k)}
-              >
-                {t}
-              </button>
-            ))}
-          </nav>
-        )}
         {view === "library" && (
           <>
             <section
@@ -567,6 +544,17 @@ export default function Quilt() {
           />
         )}
       </div>
+      {["library", "show", "album"].includes(view) && (
+        <nav className="arcade-dock qw-tabs" aria-label="工坊导航">
+          {tabs.map(([sectionId, label]) => (
+            <button key={sectionId} aria-current={currentTab === sectionId ? "page" : undefined}
+              onClick={() => section(sectionId)}>
+              <img src={sectionId === "library" ? patternsIcon : sectionId === "show" ? basket : albumIcon} alt="" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
       <dialog
         className="qw-dialog qw-art-viewer"
         ref={artViewer}

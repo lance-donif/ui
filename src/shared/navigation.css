@@ -1,0 +1,134 @@
+:root {
+  --arcade-row: 64px;
+  --arcade-mast-height: calc(var(--arcade-row) + env(safe-area-inset-top, 0px));
+  --arcade-gutter: clamp(14px, 3.5vw, 42px);
+  --arcade-dock-gap: max(10px, env(safe-area-inset-bottom, 0px));
+  --arcade-dock-height: 64px;
+}
+
+html {
+  scrollbar-gutter: stable;
+  scroll-padding-block-start: calc(var(--arcade-mast-height) + 8px);
+}
+html:has(.arcade-dock) {
+  scroll-padding-block-end: calc(var(--arcade-dock-height) + var(--arcade-dock-gap) + 12px);
+}
+
+.arcade-surface:has(.arcade-mast) { padding-block-start: var(--arcade-mast-height); }
+.arcade-surface > :is(.lobby, .qw, .tr-game, .pond-app) {
+  min-block-size: calc(100svh - var(--arcade-mast-height));
+}
+.arcade-mast {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 6;
+  inline-size: 100%;
+  block-size: var(--arcade-mast-height);
+  padding-block-start: env(safe-area-inset-top, 0px);
+  background: var(--nav-paper, #fffcf6);
+  box-shadow: inset 0 -1px var(--nav-rule, #d8d2c4);
+}
+.arcade-mast-inner {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  inline-size: 100%;
+  max-inline-size: 1240px;
+  block-size: var(--arcade-row);
+  margin-inline: auto;
+  padding-inline: max(var(--arcade-gutter), env(safe-area-inset-left, 0px)) max(var(--arcade-gutter), env(safe-area-inset-right, 0px));
+}
+.arcade-mast-leading,
+.arcade-mast-center,
+.arcade-mast-settings {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+.arcade-mast-center { justify-content: center; }
+.arcade-mast-settings { justify-content: end; }
+.arcade-mast :is(a, button):focus-visible,
+.arcade-dock button:focus-visible { outline-offset: -3px; }
+.arcade-mast a.arcade-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-block-size: 44px;
+  padding-inline: 4px;
+  color: var(--nav-ink, #275653);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.arcade-mast .arcade-home span { font-size: 20px; }
+.arcade-mast .arcade-home:hover { text-decoration: underline; text-underline-offset: 3px; }
+.arcade-game-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-inline-size: 0;
+  font-size: 20px;
+  font-weight: 850;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.arcade-game-brand > img,
+span.arcade-game-brand > .qw-patch { width: 30px; height: 30px; flex: none; object-fit: contain; }
+
+.arcade-dock {
+  position: fixed;
+  z-index: 4;
+  inset-inline: max(12px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-right, 0px));
+  inset-block-end: var(--arcade-dock-gap);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 3px;
+  max-inline-size: 420px;
+  block-size: var(--arcade-dock-height);
+  margin-inline: auto;
+  padding: 4px;
+  border: 2px solid #fffcf0;
+  border-radius: 18px;
+  background: var(--dock-paper, #176c89);
+  box-shadow: 0 3px 0 #7caca6, 0 4px 14px #1a4f5b26;
+}
+.arcade-surface .arcade-dock button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-inline-size: 0;
+  padding: 0 3px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: white;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.arcade-surface .arcade-dock button[aria-current="page"] { color: white; background: #4690a6; }
+.arcade-dock img { inline-size: 27px; block-size: 25px; object-fit: contain; }
+.arcade-dock button:focus-visible { outline: 3px solid #ffe59e; }
+.qw-tabs button:nth-child(2) img { border: 1px solid #fff9e0; border-radius: 4px; }
+
+@media (max-width: 740px), (max-height: 480px) {
+  :root { --arcade-row: 56px; }
+  .arcade-game-brand { gap: 6px; font-size: 17px; }
+  .arcade-game-brand > img,
+  span.arcade-game-brand > .qw-patch { width: 25px; height: 25px; }
+  .arcade-mast a.arcade-home { font-size: 14px; }
+}
+
+@media (min-width: 741px), (max-height: 480px) and (orientation: landscape) {
+  nav.tr-work-dock { display: none; }
+}
+
+@media (pointer: coarse) { html { scrollbar-gutter: auto; } }

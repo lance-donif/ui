@@ -1,3 +1,4 @@
+import { ArcadeHeader } from "../../shared/ArcadeHeader";
 import { useEffect, useState } from 'react';
 import { readGameSave, writeGameSave } from '../../shared/storage';
 import { art, scenery } from './art';
@@ -46,6 +47,7 @@ export default function PondGame() {
   const recent = levels.find(l => l.id === book.recent && book.runs[l.id]);
   const suggested = recent ?? levels.find(l => unlocked(l, book.records) && !book.records[l.id]) ?? levels[0];
 
+  useEffect(() => { document.documentElement.scrollTop = 0; }, [page]);
   useEffect(() => {
     const hasProgress = !!book.recent;
     writeGameSave('pond', book, hasProgress);
@@ -136,11 +138,10 @@ export default function PondGame() {
     : result === 'win' ? '抵达小旗！' : result === 'empty' ? '步数已用尽' : '没有可跳的荷叶';
 
   return <main className={'pond-app' + (playing ? ' pond-playing' : '')}>
+    <ArcadeHeader>
+      <span className="arcade-game-brand"><img src={art.frog} alt=""/>{playing ? level.name : '池塘跳跳'}</span>
+    </ArcadeHeader>
     <div className="pond-wrap">
-      <header className="pond-header">
-        <a className="pond-back" href="#/" aria-label="返回游戏大厅">‹ <span>游戏大厅</span></a>
-        <div className="pond-brand"><img src={art.frog} alt=""/><b>{playing ? level.name : '池塘跳跳'}</b></div>
-      </header>
       {page === 'ponds' && <>
         <section className="pond-hero">
           <img className="pond-hero-land" src={scenery[suggested.region]} alt=""/>
@@ -188,7 +189,7 @@ export default function PondGame() {
           onMove={move} onHint={tell} onPause={pause}/>
         <div className="pond-board-note" role="status">{notice || (moves.length === 0 && level.id === 'first' ? '点白圈荷叶跳跃，也可以使用方向键。' : '')}</div>
       </section>}
-      {!playing && <nav className="pond-dock" aria-label="池塘导航">{nav.map(t => <button type="button" key={t.page}
+      {!playing && <nav className="arcade-dock pond-dock" aria-label="池塘导航">{nav.map(t => <button type="button" key={t.page}
         aria-current={page === t.page ? 'page' : undefined} onClick={() => browse(t.page)}><img src={t.img} alt=""/><span>{t.label}</span></button>)}</nav>}
     </div>
     {!playing && notice && <div className="pond-toast" role="status">{notice}

@@ -21,8 +21,6 @@ button, input, select { font: inherit; }
 .arcade-surface:focus { outline: none; }
 .lobby { min-height: 100svh; padding-bottom: clamp(2rem, 5vw, 5rem); background: #faf8f2; }
 .lobby-width { width: min(1200px, calc(100% - clamp(2.5rem, 9vw, 9rem))); margin-inline: auto; }
-.lobby-header { border-bottom: 1px solid #e4ded2; background: #fffcf6; }
-.lobby-header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 72px; gap: 1rem; }
 .lobby-brand { display: inline-flex; align-items: center; gap: 11px; color: #263c40; text-decoration: none; font-size: 21px; font-weight: 900; letter-spacing: .015em; }
 .lobby-mark {
   display: grid; grid-template: repeat(2, 11px) / repeat(2, 11px); gap: 2px;
@@ -33,9 +31,9 @@ button, input, select { font: inherit; }
 .lobby-mark i:nth-child(2) { background: #efba56; }
 .lobby-mark i:nth-child(3) { background: #5f99a0; }
 .lobby-mark i:nth-child(4) { background: #8b9e67; }
-.lobby-header nav { display: flex; align-items: center; gap: 8px; }
-.lobby-header nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 15px; border-radius: 24px; color: #596259; text-decoration: none; font-size: 14px; font-weight: 700; }
-.lobby-header nav a[aria-current], .lobby-header nav a:hover { color: #215754; background: #e9eee5; }
+.lobby-links { display: flex; align-items: center; gap: 8px; }
+.lobby-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 15px; border-radius: 24px; color: #596259; text-decoration: none; font-size: 14px; font-weight: 700; }
+.lobby-links a[aria-current], .lobby-links a:hover { color: #215754; background: #e9eee5; }
 .lobby-main { padding-top: clamp(1.3rem, 2.3vw, 2.2rem); }
 .lobby-hero {
   position: relative; display: flex; align-items: center; isolation: isolate; overflow: hidden;
@@ -90,9 +88,8 @@ button, input, select { font: inherit; }
 .guide .panel a { display: inline-flex; gap: .5em; align-items: center; min-height: 44px; }
 @media (max-width: 760px) {
   .lobby-width { width: calc(100% - 36px); }
-  .lobby-header-inner { min-height: 62px; }
-  .lobby-header nav { gap: 0; }
-  .lobby-header nav a { padding-inline: 10px; font-size: 13px; }
+  .lobby-links { gap: 0; }
+  .lobby-links a { padding-inline: 10px; font-size: 13px; }
   .lobby-brand { font-size: 18px; gap: 7px; }
   .lobby-hero { min-height: min(38vw, 250px); border-radius: 19px; }
   .lobby-hero-copy { padding: 24px; }
@@ -126,4 +123,19 @@ button, input, select { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .lobby-card, .lobby-card img { transition: none; }
   .lobby-card:hover, .lobby-card:hover img { transform: none; }
+}
+
+
+.lobby-brand { min-height: 44px; white-space: nowrap; }
+.guide .dock { position: sticky; top: var(--arcade-mast-height); z-index: 2; }
+@media (max-width: 740px) {
+  .lobby-brand { font-size: 16px; gap: 6px; }
+  .lobby-mark { grid-template: repeat(2, 8px) / repeat(2, 8px); }
+  .lobby-links { gap: 2px; }
+  .lobby-links a { padding-inline: 6px; }
+}
+@container (max-width: 330px) {
+  .lobby-brand > .lobby-mark { display: none; }
+  .lobby-brand { font-size: 15px; }
+  .lobby-links a { padding-inline: 4px; }
 }

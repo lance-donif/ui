@@ -113,7 +113,7 @@ const materialCues: Partial<Record<string, Cue>> = {
   lock: "pin",
   calibrate: "slide",
 };
-function repairCue(job: Job, action: Action, next: Job): Cue | undefined {
+function repairCue(job: Job, action: Action, next: Job) {
   if (job.phase === "tests") {
     if (job.kind === "music") {
       return action.id === "direct" && job.fault === 0 ? "musicTwo" : undefined;
